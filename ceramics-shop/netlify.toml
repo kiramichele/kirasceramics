@@ -2,18 +2,5 @@
   publish   = "public"
   functions = "netlify/functions"
 
-# Route the Stripe webhook to its function
-[[redirects]]
-  from   = "/api/stripe-webhook"
-  to     = "/.netlify/functions/stripe-webhook"
-  status = 200
-
-# Clean URLs
-[[redirects]]
-  from   = "/*"
-  to     = "/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}   # Only fallback for non-existing paths
-
 [functions]
   node_bundler = "esbuild"
