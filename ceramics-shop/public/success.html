@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed — Fired & Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #F7EFE3; --earth: #2C1A10; --terra: #B5603A; --mud: #6B4A35;
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Jost", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--cream);
+      font-family: var(--font-body);
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .checkmark {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      animation: pop 0.5s ease;
+    }
+    @keyframes pop {
+      0%   { transform: scale(0.5); opacity: 0; }
+      80%  { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 300;
+      color: var(--earth);
+      margin-bottom: 1rem;
+    }
+    h1 em { color: var(--terra); font-style: italic; }
+    p { color: var(--mud); line-height: 1.7; max-width: 400px; margin: 0 auto 2rem; }
+    a.back {
+      display: inline-block;
+      background: var(--earth);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 0.7rem 1.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    a.back:hover { background: var(--terra); }
+  </style>
+</head>
+<body>
+  <div class="checkmark">✦</div>
+  <h1>Order <em>confirmed.</em></h1>
+  <p>Thank you so much! Your handmade piece is on its way to being carefully packed and shipped. You'll receive a confirmation email shortly.</p>
+  <a class="back" href="/">← Back to the shop</a>
+</body>
+</html>

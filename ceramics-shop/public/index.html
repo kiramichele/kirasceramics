@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kira's Ceramics — Handmade with Love</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyA_JRGnEbuuB2RE2nL9zYCTlKMYqPboA2s",
+      authDomain:        "kira-shinn-ceramics.firebaseapp.com",
+      projectId:         "kira-shinn-ceramics",
+      storageBucket:     "kira-shinn-ceramics.firebasestorage.app",
+      messagingSenderId: "606079718922",
+      appId:             "1:606079718922:web:9bda436bd03f3bc299b1f3",
+      measurementId:     "G-H68BC8LD8F",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    async function loadProducts() {
+      const grid = document.getElementById("product-grid");
+      const loading = document.getElementById("loading-state");
+      try {
+        const q = query(collection(db, "products"), where("active", "==", true));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          loading.innerHTML = '<p class="empty-state">Restocking soon — check back shortly! 🌸</p>';
+          return;
+        }
+        loading.style.display = "none";
+        snapshot.forEach(doc => {
+          const p = { id: doc.id, ...doc.data() };
+          grid.insertAdjacentHTML("beforeend", productCard(p));
+        });
+        document.querySelectorAll(".buy-btn").forEach(btn => {
+          btn.addEventListener("click", () => handleBuy(btn));
+        });
+      } catch (err) {
+        console.error(err);
+        loading.innerHTML = '<p class="empty-state">Couldn\'t load right now — try refreshing! 💙</p>';
+      }
+    }
+
+    function productCard(p) {
+      const price = (p.price / 100).toFixed(2);
+      const badge = p.stock <= 3 && p.stock > 0 ? '<span class="badge">Only ' + p.stock + ' left!</span>' : "";
+      const soldOut = p.stock === 0 ? "sold-out" : "";
+      const btnLabel = p.stock === 0 ? "Sold Out" : "Add to Cart 🛒";
+      const btnDisabled = p.stock === 0 ? "disabled" : "";
+      return '<article class="product-card ' + soldOut + '" data-id="' + p.id + '">' +
+        badge +
+        '<div class="product-img-wrap">' +
+        '<img src="' + (p.imageUrl || '') + '" alt="' + p.name + '" loading="lazy" ' +
+        'onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22><rect fill=%22%23b8e8f5%22 width=%22400%22 height=%22400%22/><text x=%2250%%22 y=%2250%%22 font-size=%2272%22 text-anchor=%22middle%22 dy=%22.3em%22>🏺</text></svg>\'" />' +
+        '</div>' +
+        '<div class="product-info">' +
+        '<h3 class="product-name">' + p.name + '</h3>' +
+        '<p class="product-desc">' + (p.description || "") + '</p>' +
+        '<div class="product-footer">' +
+        '<span class="product-price">$' + price + '</span>' +
+        '<button class="buy-btn" data-price-id="' + p.stripePriceId + '" data-name="' + p.name + '" ' + btnDisabled + '>' + btnLabel + '</button>' +
+        '</div></div></article>';
+    }
+
+    async function handleBuy(btn) {
+      if (btn.disabled) return;
+      const priceId = btn.dataset.priceId;
+      const name = btn.dataset.name;
+      btn.textContent = "Loading…";
+      btn.disabled = true;
+      try {
+        const res = await fetch("/.netlify/functions/create-checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priceId, name }),
+        });
+        const data = await res.json();
+        if (data.url) { window.location.href = data.url; }
+        else { throw new Error(data.error || "No checkout URL"); }
+      } catch (err) {
+        console.error(err);
+        btn.textContent = "Try Again 💙";
+        btn.disabled = false;
+        showToast("Something went wrong! Please try again.");
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 4000);
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProducts);
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #A8DDEF; --blue-light: #D6F0FA; --blue-mid: #7ECDE8; --blue-dark: #3A9DBF;
+      --pink: #E8237A; --pink-light: #FF6BAE; --pink-pale: #FFD6EC;
+      --white: #FFFFFF; --text: #1A3A4A; --text-soft: #4A7A8A;
+      --font-display: "Fredoka", sans-serif; --font-body: "Nunito", sans-serif;
+      --radius: 20px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--blue-light); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+    body::before {
+      content: ''; display: block; height: 8px;
+      background: repeating-linear-gradient(90deg, var(--pink) 0px, var(--pink) 20px, var(--blue-mid) 20px, var(--blue-mid) 40px, var(--pink-light) 40px, var(--pink-light) 60px, var(--blue) 60px, var(--blue) 80px);
+    }
+    header { background: var(--white); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 0 var(--blue-mid); height: 68px; position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--pink); text-decoration: none; }
+    .logo span { color: var(--blue-dark); }
+    nav a { font-family: var(--font-display); font-size: 1rem; font-weight: 500; color: var(--text-soft); text-decoration: none; margin-left: 1.5rem; transition: color 0.2s; }
+    nav a:hover { color: var(--pink); }
+    .hero { background: var(--white); margin: 2rem; border-radius: var(--radius); padding: 3.5rem 3rem; box-shadow: 6px 6px 0 var(--blue-mid); position: relative; overflow: hidden; }
+    .hero::after { content: '🏺✨💕🌸'; position: absolute; right: 2.5rem; top: 50%; transform: translateY(-50%); font-size: 3.5rem; letter-spacing: 0.3em; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(-50%) rotate(-2deg); } 50% { transform: translateY(-58%) rotate(2deg); } }
+    .hero-tag { display: inline-block; background: var(--pink-pale); color: var(--pink); font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; padding: 4px 14px; border-radius: 100px; margin-bottom: 1rem; }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 1rem; }
+    .hero h1 span { color: var(--pink); }
+    .hero-sub { font-size: 1rem; color: var(--text-soft); line-height: 1.7; max-width: 420px; }
+    .section { max-width: 1140px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+    .section-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+    .section-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
+    .section-pill { background: var(--pink); color: white; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; }
+    #product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+    .product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: 5px 5px 0 var(--blue-mid); transition: transform 0.25s, box-shadow 0.25s; border: 2px solid var(--white); }
+    .product-card:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 var(--pink-light); border-color: var(--pink-pale); }
+    .product-card.sold-out { opacity: 0.6; }
+    .badge { position: absolute; top: 12px; right: 12px; background: var(--pink); color: white; font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 100px; z-index: 1; }
+    .product-img-wrap { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--blue-light); }
+    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .product-card:hover .product-img-wrap img { transform: scale(1.05); }
+    .product-info { padding: 1.1rem 1.3rem 1.3rem; }
+    .product-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .product-desc { font-size: 0.85rem; color: var(--text-soft); line-height: 1.6; margin-bottom: 1rem; min-height: 2.6em; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .product-price { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--pink); }
+    .buy-btn { background: var(--pink); color: white; border: none; padding: 0.55rem 1rem; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; cursor: pointer; border-radius: 100px; transition: background 0.2s, transform 0.15s; }
+    .buy-btn:hover:not(:disabled) { background: var(--pink-light); transform: scale(1.05); }
+    .buy-btn:disabled { background: #ccc; cursor: not-allowed; }
+    #loading-state { grid-column: 1/-1; text-align: center; padding: 4rem 0; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--blue-mid); border-top-color: var(--pink); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { font-family: var(--font-display); font-size: 1.2rem; color: var(--text-soft); }
+    .about-strip { background: var(--pink); color: white; margin: 0 2rem 2rem; border-radius: var(--radius); padding: 3rem 2.5rem; text-align: center; box-shadow: 6px 6px 0 var(--pink-light); }
+    .about-strip h2 { font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; margin-bottom: 0.75rem; }
+    .about-strip p { max-width: 520px; margin: 0 auto; line-height: 1.8; font-size: 0.95rem; opacity: 0.92; }
+    footer { background: var(--white); border-top: 3px solid var(--blue-mid); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; color: var(--text-soft); font-family: var(--font-display); }
+    footer a { color: var(--pink); text-decoration: none; }
+    #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(4rem); background: var(--text); color: white; padding: 0.75rem 1.5rem; border-radius: 100px; font-family: var(--font-display); font-size: 0.95rem; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9999; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 600px) {
+      nav { display: none; }
+      .hero { margin: 1rem; padding: 2rem 1.5rem; }
+      .hero::after { display: none; }
+      .section { padding: 1rem 1rem 3rem; }
+      .about-strip { margin: 0 1rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/">Kira's <span>Ceramics</span></a>
+    <nav>
+      <a href="#shop">Shop</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-tag">✨ Handmade in small batches</span>
+      <h1>Clay made with <span>love</span> & a little fire</h1>
+      <p class="hero-sub">Every piece is hand-shaped and kiln-fired — no two are exactly alike! These little guys are made to be touched, carried, and loved.</p>
+    </div>
+  </section>
+
+  <section class="section" id="shop">
+    <div class="section-header">
+      <h2 class="section-title">Keychains 🗝️</h2>
+      <span class="section-pill">Available now</span>
+    </div>
+    <div id="product-grid">
+      <div id="loading-state">
+        <div class="spinner"></div>
+        <p class="empty-state">Loading the goodies…</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="about-strip" id="about">
+    <h2>Made by hand, one at a time 💕</h2>
+    <p>Every keychain is shaped, bisque fired at cone 06, glazed, and glaze fired — a whole two-fire process! Small variations in color and texture are part of what makes each piece special.</p>
+  </div>
+
+  <footer>
+    <p>© 2025 Kira's Ceramics · All pieces handmade with love · Questions? <a href="mailto:hello@example.com">Say hi!</a></p>
+  </footer>
+
+  <div id="toast"></div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout Cancelled — Fired & Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #F7EFE3; --earth: #2C1A10; --terra: #B5603A; --mud: #6B4A35;
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Jost", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--cream);
+      font-family: var(--font-body);
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .icon { font-size: 2.5rem; margin-bottom: 1.5rem; opacity: 0.5; }
+    h1 { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3rem); font-weight: 300; color: var(--earth); margin-bottom: 1rem; }
+    p { color: var(--mud); line-height: 1.7; max-width: 380px; margin: 0 auto 2rem; }
+    a.back {
+      display: inline-block; background: var(--earth); color: var(--cream);
+      text-decoration: none; padding: 0.7rem 1.6rem; font-size: 0.78rem;
+      letter-spacing: 0.12em; text-transform: uppercase; border-radius: 2px;
+    }
+    a.back:hover { background: var(--terra); }
+  </style>
+</head>
+<body>
+  <div class="icon">◦</div>
+  <h1>No worries.</h1>
+  <p>Your checkout was cancelled and nothing was charged. The shop will be here whenever you're ready.</p>
+  <a class="back" href="/">← Back to the shop</a>
+</body>
+</html>

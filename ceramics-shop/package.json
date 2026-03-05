@@ -1,0 +1,13 @@
+{
+  "name": "fired-and-found",
+  "version": "1.0.0",
+  "description": "Handmade ceramics shop — Netlify + Stripe + Firebase",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "stripe": "^14.0.0"
+  }
+}
