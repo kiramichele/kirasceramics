@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orders Admin — Kira Shinn Ceramics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyA_JRGnEbuuB2RE2nL9zYCTlKMYqPboA2s",
+      authDomain:        "kira-shinn-ceramics.firebaseapp.com",
+      projectId:         "kira-shinn-ceramics",
+      storageBucket:     "kira-shinn-ceramics.firebasestorage.app",
+      messagingSenderId: "606079718922",
+      appId:             "1:606079718922:web:9bda436bd03f3bc299b1f3",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    let adminPassword = "";
+
+    async function loadOrders() {
+      adminPassword = document.getElementById("password-input").value.trim();
+      if (!adminPassword) { alert("Enter your admin password first!"); return; }
+
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("orders-section").style.display = "block";
+
+      const list = document.getElementById("orders-list");
+      list.innerHTML = '<p class="loading">Loading orders…</p>';
+
+      try {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          list.innerHTML = '<p class="empty">No orders yet!</p>';
+          return;
+        }
+
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const o = { id: doc.id, ...doc.data() };
+          list.insertAdjacentHTML("beforeend", orderCard(o));
+        });
+
+        document.querySelectorAll(".ship-btn").forEach(btn => {
+          btn.addEventListener("click", () => markShipped(btn));
+        });
+
+      } catch (err) {
+        list.innerHTML = `<p class="empty">Error loading orders: ${err.message}</p>`;
+      }
+    }
+
+    function orderCard(o) {
+      const date = o.createdAt?.toDate?.()?.toLocaleDateString() || "Unknown date";
+      const amount = o.amountTotal ? "$" + (o.amountTotal / 100).toFixed(2) : "—";
+      const address = o.shippingAddress
+        ? `${o.shippingAddress.line1}, ${o.shippingAddress.city}, ${o.shippingAddress.state} ${o.shippingAddress.postal_code}`
+        : "No address";
+      const statusColor = o.status === "shipped" ? "#7A9471" : "#E8237A";
+      const statusLabel = o.status === "shipped" ? "✓ Shipped" : "● Paid";
+      const shipBtn = o.status !== "shipped"
+        ? `<div class="ship-row">
+            <input class="tracking-input" placeholder="Tracking # (optional)" data-order-id="${o.id}" />
+            <button class="ship-btn" data-order-id="${o.id}">Mark Shipped 📦</button>
+           </div>`
+        : o.trackingNumber ? `<p class="tracking-info">Tracking: ${o.trackingNumber}</p>` : "";
+
+      return `
+        <div class="order-card" id="order-${o.id}">
+          <div class="order-header">
+            <div>
+              <span class="order-name">${o.customerName || "Unknown"}</span>
+              <span class="order-date">${date}</span>
+            </div>
+            <span class="order-status" style="color: ${statusColor};">${statusLabel}</span>
+          </div>
+          <div class="order-details">
+            <span>🏺 ${o.productName || "Unknown item"}</span>
+            <span>💰 ${amount}</span>
+            <span>📧 ${o.customerEmail || "—"}</span>
+            <span>📍 ${address}</span>
+          </div>
+          ${shipBtn}
+        </div>`;
+    }
+
+    async function markShipped(btn) {
+      const orderId = btn.dataset.orderId;
+      const trackingInput = document.querySelector(`.tracking-input[data-order-id="${orderId}"]`);
+      const trackingNumber = trackingInput?.value?.trim() || null;
+
+      btn.textContent = "Sending…";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/.netlify/functions/send-shipping-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, trackingNumber, adminPassword }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          const card = document.getElementById(`order-${orderId}`);
+          card.querySelector(".order-status").textContent = "✓ Shipped";
+          card.querySelector(".order-status").style.color = "#7A9471";
+          card.querySelector(".ship-row").innerHTML = `<p class="tracking-info">✓ Shipping email sent!</p>`;
+        } else {
+          throw new Error(data.error || "Unknown error");
+        }
+      } catch (err) {
+        btn.textContent = "Try Again";
+        btn.disabled = false;
+        alert("Error: " + err.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("login-btn").addEventListener("click", loadOrders);
+      document.getElementById("password-input").addEventListener("keydown", e => {
+        if (e.key === "Enter") loadOrders();
+      });
+    });
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #A8DDEF; --blue-light: #D6F0FA; --blue-mid: #7ECDE8;
+      --pink: #E8237A; --pink-pale: #FFD6EC;
+      --white: #fff; --text: #1A3A4A; --text-soft: #4A7A8A;
+      --green: #7A9471;
+      --font-display: "Fredoka", sans-serif;
+      --font-body: "Nunito", sans-serif;
+    }
+    body { background: var(--blue-light); font-family: var(--font-body); min-height: 100vh; padding: 2rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--pink); }
+    header p { color: var(--text-soft); font-size: 0.9rem; margin-top: 4px; }
+
+    /* Login */
+    #login-section { max-width: 360px; margin: 4rem auto; background: var(--white); border-radius: 20px; padding: 2rem; box-shadow: 5px 5px 0 var(--blue-mid); text-align: center; }
+    #login-section h2 { font-family: var(--font-display); color: var(--text); margin-bottom: 1rem; }
+    #password-input { width: 100%; padding: 0.7rem 1rem; border: 2px solid var(--blue-mid); border-radius: 10px; font-family: var(--font-body); font-size: 1rem; margin-bottom: 1rem; outline: none; }
+    #password-input:focus { border-color: var(--pink); }
+    #login-btn { background: var(--pink); color: white; border: none; padding: 0.7rem 2rem; font-family: var(--font-display); font-size: 1rem; font-weight: 600; border-radius: 100px; cursor: pointer; transition: background 0.2s; }
+    #login-btn:hover { background: #c01a6a; }
+
+    /* Orders */
+    #orders-section { display: none; max-width: 800px; margin: 0 auto; }
+    .orders-title { font-family: var(--font-display); font-size: 1.6rem; color: var(--text); margin-bottom: 1.5rem; }
+    .order-card { background: var(--white); border-radius: 16px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; box-shadow: 4px 4px 0 var(--blue-mid); }
+    .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .order-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--text); display: block; }
+    .order-date { font-size: 0.78rem; color: var(--text-soft); }
+    .order-status { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; }
+    .order-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1rem; font-size: 0.85rem; color: var(--text-soft); margin-bottom: 1rem; }
+    .ship-row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .tracking-input { flex: 1; min-width: 160px; padding: 0.5rem 0.75rem; border: 2px solid var(--blue-mid); border-radius: 8px; font-family: var(--font-body); font-size: 0.85rem; outline: none; }
+    .tracking-input:focus { border-color: var(--pink); }
+    .ship-btn { background: var(--text); color: white; border: none; padding: 0.5rem 1rem; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; border-radius: 100px; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .ship-btn:hover:not(:disabled) { background: var(--pink); }
+    .ship-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .tracking-info { font-size: 0.82rem; color: var(--green); font-weight: 600; }
+    .loading, .empty { text-align: center; color: var(--text-soft); font-family: var(--font-display); font-size: 1.1rem; padding: 2rem; }
+    @media (max-width: 500px) {
+      .order-details { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏺 Orders Admin</h1>
+    <p>Kira Shinn Ceramics · Private</p>
+  </header>
+
+  <div id="login-section">
+    <h2>Enter your admin password</h2>
+    <input type="password" id="password-input" placeholder="Password" />
+    <button id="login-btn">View Orders</button>
+  </div>
+
+  <div id="orders-section">
+    <h2 class="orders-title">All Orders</h2>
+    <div id="orders-list"></div>
+  </div>
+</body>
+</html>
