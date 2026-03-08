@@ -24,26 +24,30 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // ── Cart state ───────────────────────────────────────────────────
-    let cart = []; // [{ id, name, price, stripePriceId, imageUrl, quantity }]
+    // ── Categories ───────────────────────────────────────────────────
+    const CATEGORIES = [
+      { key: "all",          label: "All",            emoji: "✨" },
+      { key: "keychain",     label: "Keychains",      emoji: "🗝️" },
+      { key: "mug",          label: "Mugs",           emoji: "☕" },
+      { key: "coaster",      label: "Coasters",       emoji: "🪨" },
+      { key: "paint-palette",label: "Paint Palettes", emoji: "🎨" },
+      { key: "brush-rest",   label: "Brush Rests",    emoji: "🖌️" },
+    ];
 
-    function getCartTotal() {
-      return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    }
+    let allProducts = {};
+    let activeCategory = "all";
 
-    function getCartCount() {
-      return cart.reduce((sum, item) => sum + item.quantity, 0);
-    }
+    // ── Cart ─────────────────────────────────────────────────────────
+    let cart = [];
+
+    function getCartTotal() { return cart.reduce((s, i) => s + i.price * i.quantity, 0); }
+    function getCartCount() { return cart.reduce((s, i) => s + i.quantity, 0); }
 
     function addToCart(product) {
       const existing = cart.find(i => i.id === product.id);
       if (existing) {
-        if (existing.quantity < product.stock) {
-          existing.quantity++;
-        } else {
-          showToast("That's all the stock we have! 😅");
-          return;
-        }
+        if (existing.quantity < product.stock) { existing.quantity++; }
+        else { showToast("That's all the stock we have! 😅"); return; }
       } else {
         cart.push({ ...product, quantity: 1 });
       }
@@ -51,33 +55,24 @@
       openCart();
     }
 
-    function removeFromCart(id) {
-      cart = cart.filter(i => i.id !== id);
-      updateCartUI();
-    }
+    function removeFromCart(id) { cart = cart.filter(i => i.id !== id); updateCartUI(); }
 
     function changeQty(id, delta) {
       const item = cart.find(i => i.id === id);
       if (!item) return;
       item.quantity += delta;
-      if (item.quantity <= 0) {
-        removeFromCart(id);
-      } else {
-        updateCartUI();
-      }
+      if (item.quantity <= 0) removeFromCart(id);
+      else updateCartUI();
     }
 
     function updateCartUI() {
       const count = getCartCount();
       const total = getCartTotal();
-
-      // Badge
       const badge = document.getElementById("cart-badge");
       badge.textContent = count;
       badge.style.display = count > 0 ? "flex" : "none";
 
-      // Cart items
-      const cartItems = document.getElementById("cart-items");
+      const cartItems  = document.getElementById("cart-items");
       const cartFooter = document.getElementById("cart-footer");
 
       if (cart.length === 0) {
@@ -104,48 +99,28 @@
             </div>
           </div>
           <p class="cart-item-subtotal">$${((item.price * item.quantity) / 100).toFixed(2)}</p>
-        </div>
-      `).join("");
+        </div>`).join("");
 
       document.getElementById("cart-total").textContent = "$" + (total / 100).toFixed(2);
     }
 
-    function openCart() {
-      document.getElementById("cart-drawer").classList.add("open");
-      document.getElementById("cart-overlay").classList.add("open");
-    }
-
-    function closeCart() {
-      document.getElementById("cart-drawer").classList.remove("open");
-      document.getElementById("cart-overlay").classList.remove("open");
-    }
+    function openCart()  { document.getElementById("cart-drawer").classList.add("open"); document.getElementById("cart-overlay").classList.add("open"); }
+    function closeCart() { document.getElementById("cart-drawer").classList.remove("open"); document.getElementById("cart-overlay").classList.remove("open"); }
 
     async function checkout() {
       if (cart.length === 0) return;
-
       const btn = document.getElementById("checkout-btn");
       btn.textContent = "Loading…";
       btn.disabled = true;
-
       try {
-        const items = cart.map(item => ({
-          priceId:  item.stripePriceId,
-          quantity: item.quantity,
-          name:     item.name,
-        }));
-
-        const res = await fetch("/.netlify/functions/create-checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const items = cart.map(i => ({ priceId: i.stripePriceId, quantity: i.quantity, name: i.name }));
+        const res  = await fetch("/.netlify/functions/create-checkout", {
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items }),
         });
-
         const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error(data.error || "No checkout URL");
-        }
+        if (data.url) { window.location.href = data.url; }
+        else { throw new Error(data.error || "No checkout URL"); }
       } catch (err) {
         console.error(err);
         btn.textContent = "Checkout 💳";
@@ -154,52 +129,57 @@
       }
     }
 
-    // Expose to inline onclick handlers
-    window._changeQty = changeQty;
+    window._changeQty      = changeQty;
     window._removeFromCart = removeFromCart;
 
     // ── Load Products ────────────────────────────────────────────────
-    let allProducts = {};
-
     async function loadProducts() {
-      const grid = document.getElementById("product-grid");
       const loading = document.getElementById("loading-state");
       try {
         const q = query(collection(db, "products"), where("active", "==", true));
         const snapshot = await getDocs(q);
+        loading.style.display = "none";
 
         if (snapshot.empty) {
-          loading.innerHTML = '<p class="empty-state">Restocking soon — check back shortly! 🌸</p>';
+          document.getElementById("product-grid").innerHTML = '<p class="empty-state">Restocking soon — check back shortly! 🌸</p>';
           return;
         }
 
-        loading.style.display = "none";
         snapshot.forEach(doc => {
-          const p = { id: doc.id, ...doc.data() };
-          allProducts[p.id] = p;
-          grid.insertAdjacentHTML("beforeend", productCard(p));
+          allProducts[doc.id] = { id: doc.id, ...doc.data() };
         });
 
-        document.querySelectorAll(".add-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const id = btn.dataset.productId;
-            addToCart(allProducts[id]);
-          });
-        });
-
+        renderProducts();
       } catch (err) {
         console.error(err);
         loading.innerHTML = '<p class="empty-state">Couldn\'t load right now — try refreshing! 💙</p>';
       }
     }
 
-    function productCard(p) {
-      const price = (p.price / 100).toFixed(2);
-      const badge = p.stock <= 3 && p.stock > 0 ? '<span class="badge">Only ' + p.stock + ' left!</span>' : "";
-      const soldOut = p.stock === 0 ? "sold-out" : "";
-      const btnLabel = p.stock === 0 ? "Sold Out" : "Add to Cart 🛒";
-      const btnDisabled = p.stock === 0 ? "disabled" : "";
+    function renderProducts() {
+      const grid = document.getElementById("product-grid");
+      const filtered = activeCategory === "all"
+        ? Object.values(allProducts)
+        : Object.values(allProducts).filter(p => p.category === activeCategory);
 
+      if (filtered.length === 0) {
+        grid.innerHTML = '<p class="empty-state">Nothing in this category yet — check back soon! 🌸</p>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => productCard(p)).join("");
+
+      document.querySelectorAll(".add-btn").forEach(btn => {
+        btn.addEventListener("click", () => addToCart(allProducts[btn.dataset.productId]));
+      });
+    }
+
+    function productCard(p) {
+      const price      = (p.price / 100).toFixed(2);
+      const badge      = p.stock <= 3 && p.stock > 0 ? `<span class="badge">Only ${p.stock} left!</span>` : "";
+      const soldOut    = p.stock === 0 ? "sold-out" : "";
+      const btnLabel   = p.stock === 0 ? "Sold Out" : "Add to Cart 🛒";
+      const btnDisabled= p.stock === 0 ? "disabled" : "";
       return `
         <article class="product-card ${soldOut}">
           ${badge}
@@ -218,6 +198,17 @@
         </article>`;
     }
 
+    function setCategory(key) {
+      activeCategory = key;
+      document.querySelectorAll(".cat-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.cat === key);
+      });
+      // Update section title
+      const cat = CATEGORIES.find(c => c.key === key);
+      document.getElementById("section-title").textContent = cat.emoji + " " + cat.label;
+      renderProducts();
+    }
+
     function showToast(msg) {
       const t = document.getElementById("toast");
       t.textContent = msg;
@@ -226,6 +217,17 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Build category tabs
+      const tabsEl = document.getElementById("cat-tabs");
+      CATEGORIES.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "cat-tab" + (cat.key === "all" ? " active" : "");
+        btn.dataset.cat = cat.key;
+        btn.innerHTML = `<span class="cat-emoji">${cat.emoji}</span> ${cat.label}`;
+        btn.addEventListener("click", () => setCategory(cat.key));
+        tabsEl.appendChild(btn);
+      });
+
       loadProducts();
       document.getElementById("cart-btn").addEventListener("click", openCart);
       document.getElementById("cart-close").addEventListener("click", closeCart);
@@ -251,12 +253,7 @@
     }
 
     /* ─── Header ─── */
-    header {
-      background: var(--white); padding: 0 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 3px 0 var(--blue-mid); height: 68px;
-      position: sticky; top: 0; z-index: 100;
-    }
+    header { background: var(--white); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 0 var(--blue-mid); height: 68px; position: sticky; top: 0; z-index: 100; }
     .logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--pink); text-decoration: none; }
     .logo span { color: var(--blue-dark); }
     .header-right { display: flex; align-items: center; gap: 1.5rem; }
@@ -264,55 +261,21 @@
     nav a:hover { color: var(--pink); }
 
     /* ─── Cart Button ─── */
-    #cart-btn {
-      background: var(--pink); color: white; border: none;
-      font-family: var(--font-display); font-size: 1rem; font-weight: 600;
-      padding: 0.45rem 1rem; border-radius: 100px; cursor: pointer;
-      display: flex; align-items: center; gap: 0.4rem;
-      transition: background 0.2s; position: relative;
-    }
+    #cart-btn { background: var(--pink); color: white; border: none; font-family: var(--font-display); font-size: 1rem; font-weight: 600; padding: 0.45rem 1rem; border-radius: 100px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.2s; }
     #cart-btn:hover { background: var(--pink-light); }
-    #cart-badge {
-      background: var(--blue-dark); color: white;
-      font-size: 0.7rem; font-weight: 700;
-      width: 18px; height: 18px; border-radius: 50%;
-      display: none; align-items: center; justify-content: center;
-    }
+    #cart-badge { background: var(--blue-dark); color: white; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; }
 
-    /* ─── Cart Overlay ─── */
-    #cart-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(26,58,74,0.4); z-index: 200;
-    }
+    /* ─── Cart ─── */
+    #cart-overlay { display: none; position: fixed; inset: 0; background: rgba(26,58,74,0.4); z-index: 200; }
     #cart-overlay.open { display: block; }
-
-    /* ─── Cart Drawer ─── */
-    #cart-drawer {
-      position: fixed; top: 0; right: -420px; width: 400px; max-width: 95vw;
-      height: 100vh; background: var(--white);
-      box-shadow: -4px 0 24px rgba(26,58,74,0.15);
-      z-index: 300; display: flex; flex-direction: column;
-      transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
-    }
+    #cart-drawer { position: fixed; top: 0; right: -420px; width: 400px; max-width: 95vw; height: 100vh; background: var(--white); box-shadow: -4px 0 24px rgba(26,58,74,0.15); z-index: 300; display: flex; flex-direction: column; transition: right 0.35s cubic-bezier(0.4,0,0.2,1); }
     #cart-drawer.open { right: 0; }
-
-    .cart-header {
-      background: var(--blue-mid); padding: 1.2rem 1.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    .cart-header { background: var(--blue-mid); padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .cart-header h2 { font-family: var(--font-display); font-size: 1.3rem; color: var(--text); }
-    #cart-close {
-      background: none; border: none; font-size: 1.4rem; cursor: pointer;
-      color: var(--text); line-height: 1; padding: 4px;
-    }
-
+    #cart-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text); }
     #cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
     .cart-empty { text-align: center; color: var(--text-soft); font-family: var(--font-display); font-size: 1.1rem; padding: 3rem 0; }
-
-    .cart-item {
-      display: flex; gap: 1rem; align-items: flex-start;
-      padding: 1rem 0; border-bottom: 1px solid var(--blue-light);
-    }
+    .cart-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--blue-light); }
     .cart-item:last-child { border-bottom: none; }
     .cart-item-img { width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: var(--blue-light); flex-shrink: 0; }
     .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
@@ -320,33 +283,17 @@
     .cart-item-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
     .cart-item-price { font-size: 0.78rem; color: var(--text-soft); margin-bottom: 6px; }
     .cart-item-qty { display: flex; align-items: center; gap: 0.5rem; }
-    .qty-btn {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2px solid var(--blue-mid); background: none;
-      font-size: 1rem; cursor: pointer; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text); transition: all 0.15s;
-    }
+    .qty-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--blue-mid); background: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: all 0.15s; }
     .qty-btn:hover { background: var(--pink); border-color: var(--pink); color: white; }
     .cart-item-qty span { font-family: var(--font-display); font-weight: 600; min-width: 20px; text-align: center; }
-    .remove-btn {
-      background: none; border: none; color: #ccc; font-size: 0.85rem;
-      cursor: pointer; margin-left: 4px; padding: 2px 4px;
-      transition: color 0.15s;
-    }
+    .remove-btn { background: none; border: none; color: #ccc; font-size: 0.85rem; cursor: pointer; margin-left: 4px; transition: color 0.15s; }
     .remove-btn:hover { color: var(--pink); }
     .cart-item-subtotal { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--pink); flex-shrink: 0; }
-
-    #cart-footer { display: none; padding: 1.25rem 1.5rem; border-top: 2px solid var(--blue-light); background: var(--white); }
+    #cart-footer { display: none; padding: 1.25rem 1.5rem; border-top: 2px solid var(--blue-light); }
     .cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .cart-total-label { font-family: var(--font-display); font-size: 1.1rem; color: var(--text); }
+    .cart-total-label { font-family: var(--font-display); font-size: 1.1rem; }
     #cart-total { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--pink); }
-    #checkout-btn {
-      width: 100%; background: var(--pink); color: white; border: none;
-      padding: 0.85rem; font-family: var(--font-display); font-size: 1.1rem;
-      font-weight: 700; border-radius: 100px; cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-    }
+    #checkout-btn { width: 100%; background: var(--pink); color: white; border: none; padding: 0.85rem; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; border-radius: 100px; cursor: pointer; transition: background 0.2s, transform 0.15s; }
     #checkout-btn:hover:not(:disabled) { background: var(--pink-light); transform: scale(1.02); }
     #checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -359,10 +306,24 @@
     .hero h1 span { color: var(--pink); }
     .hero-sub { font-size: 1rem; color: var(--text-soft); line-height: 1.7; max-width: 420px; }
 
+    /* ─── Category Tabs ─── */
+    .cat-tabs-wrap { max-width: 1140px; margin: 0 auto; padding: 2rem 2rem 0; }
+    #cat-tabs { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .cat-tab {
+      background: var(--white); color: var(--text-soft);
+      border: 2px solid var(--blue-mid); border-radius: 100px;
+      font-family: var(--font-display); font-size: 0.95rem; font-weight: 500;
+      padding: 0.45rem 1.1rem; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 0.3rem;
+    }
+    .cat-tab:hover { border-color: var(--pink); color: var(--pink); }
+    .cat-tab.active { background: var(--pink); color: white; border-color: var(--pink); }
+    .cat-emoji { font-size: 1rem; }
+
     /* ─── Section ─── */
-    .section { max-width: 1140px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+    .section { max-width: 1140px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
     .section-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
-    .section-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
+    #section-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
     .section-pill { background: var(--pink); color: white; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; }
 
     /* ─── Product Grid ─── */
@@ -387,7 +348,7 @@
     #loading-state { grid-column: 1/-1; text-align: center; padding: 4rem 0; }
     .spinner { width: 40px; height: 40px; border: 3px solid var(--blue-mid); border-top-color: var(--pink); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .empty-state { font-family: var(--font-display); font-size: 1.2rem; color: var(--text-soft); }
+    .empty-state { font-family: var(--font-display); font-size: 1.2rem; color: var(--text-soft); grid-column: 1/-1; text-align: center; padding: 3rem 0; }
 
     /* ─── About ─── */
     .about-strip { background: var(--pink); color: white; margin: 0 2rem 2rem; border-radius: var(--radius); padding: 3rem 2.5rem; text-align: center; box-shadow: 6px 6px 0 var(--pink-light); }
@@ -409,6 +370,7 @@
       .section { padding: 1rem 1rem 3rem; }
       .about-strip { margin: 0 1rem 1rem; }
       #cart-drawer { width: 100vw; }
+      .cat-tabs-wrap { padding: 1rem 1rem 0; }
     }
   </style>
 </head>
@@ -421,17 +383,11 @@
         <a href="#shop">Shop</a>
         <a href="#about">About</a>
       </nav>
-      <button id="cart-btn">
-        🛒 Cart
-        <span id="cart-badge">0</span>
-      </button>
+      <button id="cart-btn">🛒 Cart <span id="cart-badge">0</span></button>
     </div>
   </header>
 
-  <!-- Cart Overlay -->
   <div id="cart-overlay"></div>
-
-  <!-- Cart Drawer -->
   <div id="cart-drawer">
     <div class="cart-header">
       <h2>Your Cart 🛒</h2>
@@ -449,19 +405,21 @@
     </div>
   </div>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-content">
       <span class="hero-tag">✨ Handmade in small batches</span>
       <h1>Clay made with <span>love</span> & a little fire</h1>
-      <p class="hero-sub">Every piece is hand-shaped and kiln-fired — no two are exactly alike! These little guys are made to be touched, carried, and loved.</p>
+      <p class="hero-sub">Every piece is hand-shaped and kiln-fired — no two are exactly alike! Made to be touched, used, and loved every day.</p>
     </div>
   </section>
 
-  <!-- Shop -->
-  <section class="section" id="shop">
+  <div class="cat-tabs-wrap" id="shop">
+    <div id="cat-tabs"></div>
+  </div>
+
+  <section class="section">
     <div class="section-header">
-      <h2 class="section-title">Keychains 🗝️</h2>
+      <h2 id="section-title">✨ All</h2>
       <span class="section-pill">Available now</span>
     </div>
     <div id="product-grid">
@@ -472,10 +430,9 @@
     </div>
   </section>
 
-  <!-- About -->
   <div class="about-strip" id="about">
     <h2>Made by hand, one at a time 💕</h2>
-    <p>Every keychain is shaped, bisque fired at cone 06, glazed, and glaze fired — a whole two-fire process! Small variations in color and texture are part of what makes each piece special.</p>
+    <p>Every piece is shaped, bisque fired at cone 06, glazed, and glaze fired — a whole two-fire process! Small variations in color and texture are part of what makes each piece special.</p>
   </div>
 
   <footer>
