@@ -113,10 +113,11 @@
       btn.textContent = "Loading…";
       btn.disabled = true;
       try {
+        const notes = document.getElementById("cart-notes").value.trim();
         const items = cart.map(i => ({ priceId: i.stripePriceId, quantity: i.quantity, name: i.name }));
         const res  = await fetch("/.netlify/functions/create-checkout", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items }),
+          body: JSON.stringify({ items, notes }),
         });
         const data = await res.json();
         if (data.url) { window.location.href = data.url; }
@@ -363,6 +364,14 @@
     #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(4rem); background: var(--text); color: white; padding: 0.75rem 1.5rem; border-radius: 100px; font-family: var(--font-display); font-size: 0.95rem; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9999; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* Notes */
+    .notes-wrap { margin-bottom: 1rem; }
+    .notes-label { display: block; font-family: var(--font-display); font-size: 0.9rem; color: var(--text); margin-bottom: 0.4rem; font-weight: 500; }
+    .notes-input { width: 100%; padding: 0.65rem 0.9rem; border: 2px solid var(--blue-mid); border-radius: 12px; font-family: var(--font-body); font-size: 0.85rem; color: var(--text); resize: vertical; outline: none; transition: border-color 0.2s; }
+    .notes-input:focus { border-color: var(--pink); }
+    .glaze-link { display: inline-block; font-family: var(--font-display); font-size: 0.82rem; color: var(--pink); text-decoration: none; margin-top: 0.4rem; font-weight: 500; }
+    .glaze-link:hover { text-decoration: underline; }
+
     @media (max-width: 600px) {
       nav { display: none; }
       .hero { margin: 1rem; padding: 2rem 1.5rem; }
@@ -400,6 +409,11 @@
       <div class="cart-total-row">
         <span class="cart-total-label">Total</span>
         <span id="cart-total">$0.00</span>
+      </div>
+      <div class="notes-wrap">
+        <label class="notes-label" for="cart-notes">✏️ Personalization / glaze requests</label>
+        <textarea id="cart-notes" class="notes-input" placeholder="e.g. Rose Quartz glaze, add a star stamp, gift for my mom..." rows="3"></textarea>
+        <a href="/glazes.html" class="glaze-link" target="_blank">Browse glazes 🎨</a>
       </div>
       <button id="checkout-btn">Checkout 💳</button>
     </div>
