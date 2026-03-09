@@ -42,16 +42,17 @@ exports.handler = async (event) => {
   if (stripeEvent.type === "checkout.session.completed") {
     const session = stripeEvent.data.object;
 
-    const customerName  = session.customer_details?.name  || "Friend";
-    const customerEmail = session.customer_details?.email || null;
-    const productName   = session.metadata?.productName   || "your item";
-    const amountTotal   = ((session.amount_total || 0) / 100).toFixed(2);
-    const address       = session.shipping_details?.address;
-    const addressLine   = address
+    const customerName    = session.customer_details?.name  || "Friend";
+    const customerEmail   = session.customer_details?.email || null;
+    const productName     = session.metadata?.productNames  || "your item(s)";
+    const customerNotes   = session.metadata?.customerNotes || "";
+    const amountTotal     = ((session.amount_total || 0) / 100).toFixed(2);
+    const address         = session.shipping_details?.address;
+    const addressLine     = address
       ? `${address.line1}${address.line2 ? ", " + address.line2 : ""}, ${address.city}, ${address.state} ${address.postal_code}`
       : "No address provided";
 
-    // Save order to Firestore
+    // Save to Firestore
     let orderId = null;
     try {
       const ref = await db.collection("orders").add({
@@ -63,11 +64,11 @@ exports.handler = async (event) => {
         currency:        session.currency,
         paymentStatus:   session.payment_status,
         productName,
+        customerNotes,
         status:          "paid",
         createdAt:       admin.firestore.FieldValue.serverTimestamp(),
       });
       orderId = ref.id;
-      console.log("Order saved:", orderId);
     } catch (err) {
       console.error("Firestore write error:", err.message);
     }
@@ -78,7 +79,7 @@ exports.handler = async (event) => {
         from:    `"Kira Shinn Ceramics" <${process.env.GMAIL_USER}>`,
         to:      process.env.GMAIL_USER,
         subject: `🏺 New Order! ${productName} from ${customerName}`,
-        html: ownerEmail({ customerName, customerEmail, productName, amountTotal, addressLine, orderId }),
+        html:    ownerEmail({ customerName, customerEmail, productName, customerNotes, amountTotal, addressLine, orderId }),
       });
     } catch (err) {
       console.error("Owner email error:", err.message);
@@ -91,9 +92,8 @@ exports.handler = async (event) => {
           from:    `"Kira Shinn Ceramics" <${process.env.GMAIL_USER}>`,
           to:      customerEmail,
           subject: `Your order is confirmed! 🏺💕`,
-          html: confirmationEmail({ customerName, productName, amountTotal, addressLine }),
+          html:    confirmationEmail({ customerName, productName, customerNotes, amountTotal, addressLine }),
         });
-        console.log("Confirmation email sent to:", customerEmail);
       } catch (err) {
         console.error("Customer email error:", err.message);
       }
@@ -103,7 +103,13 @@ exports.handler = async (event) => {
   return { statusCode: 200, body: JSON.stringify({ received: true }) };
 };
 
-function confirmationEmail({ customerName, productName, amountTotal, addressLine }) {
+function confirmationEmail({ customerName, productName, customerNotes, amountTotal, addressLine }) {
+  const notesBlock = customerNotes ? `
+    <div style="background: #FFD6EC; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+      <h3 style="margin: 0 0 6px; color: #1A3A4A; font-size: 0.95rem;">✏️ Your personalization request</h3>
+      <p style="margin: 0; color: #6A2A4A; font-size: 0.9rem; line-height: 1.6;">${customerNotes}</p>
+    </div>` : "";
+
   return `
     <div style="font-family: 'Helvetica Neue', sans-serif; max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 2px solid #A8DDEF;">
       <div style="background: #A8DDEF; padding: 32px 32px 24px; text-align: center;">
@@ -118,51 +124,41 @@ function confirmationEmail({ customerName, productName, amountTotal, addressLine
         <div style="background: #D6F0FA; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <h3 style="margin: 0 0 14px; color: #1A3A4A; font-size: 1rem;">Order Summary</h3>
           <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Item</td>
-              <td style="padding: 6px 0; color: #1A3A4A; font-weight: 600; text-align: right;">${productName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Total</td>
-              <td style="padding: 6px 0; color: #E8237A; font-weight: 700; text-align: right; font-size: 1.1rem;">$${amountTotal}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Ship to</td>
-              <td style="padding: 6px 0; color: #1A3A4A; text-align: right; font-size: 0.9rem;">${addressLine}</td>
-            </tr>
+            <tr><td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Item(s)</td><td style="padding: 6px 0; color: #1A3A4A; font-weight: 600; text-align: right;">${productName}</td></tr>
+            <tr><td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Total</td><td style="padding: 6px 0; color: #E8237A; font-weight: 700; text-align: right; font-size: 1.1rem;">$${amountTotal}</td></tr>
+            <tr><td style="padding: 6px 0; color: #4A7A8A; font-size: 0.9rem;">Ship to</td><td style="padding: 6px 0; color: #1A3A4A; text-align: right; font-size: 0.9rem;">${addressLine}</td></tr>
           </table>
         </div>
+        ${notesBlock}
         <div style="background: #FFD6EC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <h3 style="margin: 0 0 8px; color: #1A3A4A; font-size: 1rem;">📦 Shipping Estimate</h3>
-          <p style="margin: 0; color: #6A2A4A; font-size: 0.9rem; line-height: 1.6;">
-            Orders typically ship within <strong>3–5 business days</strong>. Once your package is on its way, you'll receive a shipping confirmation email with tracking info!
-          </p>
+          <p style="margin: 0; color: #6A2A4A; font-size: 0.9rem; line-height: 1.6;">Orders typically ship within <strong>3–5 business days</strong>. You'll receive a shipping confirmation with tracking info once it's on its way!</p>
         </div>
-        <p style="color: #4A7A8A; font-size: 0.9rem; line-height: 1.6; margin: 0;">
-          Questions about your order? Just reply to this email and I'll get back to you! ✨
-        </p>
+        <p style="color: #4A7A8A; font-size: 0.9rem; line-height: 1.6; margin: 0;">Questions? Just reply to this email! ✨</p>
       </div>
       <div style="background: #1A3A4A; padding: 20px 32px; text-align: center;">
         <p style="margin: 0; color: #7ECDE8; font-size: 0.8rem;">Kira Shinn Ceramics · Handmade with love 🏺💕</p>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-function ownerEmail({ customerName, customerEmail, productName, amountTotal, addressLine, orderId }) {
+function ownerEmail({ customerName, customerEmail, productName, customerNotes, amountTotal, addressLine, orderId }) {
+  const notesRow = customerNotes
+    ? `<tr><td style="padding: 8px 0; color: #666; width: 140px; vertical-align:top;">Notes</td><td style="padding: 8px 0; color: #E8237A; font-weight: 600;">${customerNotes}</td></tr>`
+    : "";
   return `
     <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
       <h2 style="color: #E8237A;">You got a new order! 🎉</h2>
       <table style="width: 100%; border-collapse: collapse;">
-        <tr><td style="padding: 8px 0; color: #666; width: 140px;">Item</td><td style="padding: 8px 0; font-weight: bold;">${productName}</td></tr>
+        <tr><td style="padding: 8px 0; color: #666; width: 140px;">Item(s)</td><td style="padding: 8px 0; font-weight: bold;">${productName}</td></tr>
         <tr><td style="padding: 8px 0; color: #666;">Amount</td><td style="padding: 8px 0; font-weight: bold;">$${amountTotal}</td></tr>
         <tr><td style="padding: 8px 0; color: #666;">Customer</td><td style="padding: 8px 0;">${customerName}</td></tr>
         <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;">${customerEmail}</td></tr>
         <tr><td style="padding: 8px 0; color: #666;">Ship to</td><td style="padding: 8px 0;">${addressLine}</td></tr>
+        ${notesRow}
         ${orderId ? `<tr><td style="padding: 8px 0; color: #666;">Order ID</td><td style="padding: 8px 0; font-size: 0.85rem; color: #999;">${orderId}</td></tr>` : ""}
       </table>
       <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
       <p style="color: #999; font-size: 0.85rem;">View in <a href="https://dashboard.stripe.com/payments" style="color: #E8237A;">Stripe dashboard</a></p>
-    </div>
-  `;
+    </div>`;
 }
