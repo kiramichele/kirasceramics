@@ -14,9 +14,9 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  let items;
+  let items, notes;
   try {
-    ({ items } = JSON.parse(event.body));
+    ({ items, notes } = JSON.parse(event.body));
   } catch {
     return respond(400, { error: "Invalid request body" }, event);
   }
@@ -25,14 +25,13 @@ exports.handler = async (event) => {
     return respond(400, { error: "No items provided" }, event);
   }
 
-  // Validate all items have a priceId
   for (const item of items) {
     if (!item.priceId || typeof item.priceId !== "string") {
       return respond(400, { error: "Invalid priceId in cart" }, event);
     }
   }
 
-  const siteUrl = process.env.URL || "http://localhost:8888";
+  const siteUrl      = process.env.URL || "http://localhost:8888";
   const productNames = items.map(i => i.name).join(", ");
 
   try {
@@ -44,9 +43,7 @@ exports.handler = async (event) => {
       })),
       success_url: `${siteUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${siteUrl}/cancel.html`,
-      shipping_address_collection: {
-        allowed_countries: ["US"],
-      },
+      shipping_address_collection: { allowed_countries: ["US"] },
       shipping_options: [
         {
           shipping_rate_data: {
@@ -71,7 +68,11 @@ exports.handler = async (event) => {
           },
         },
       ],
-      metadata: { productNames },
+      metadata: {
+        productNames,
+        // Stripe metadata values must be strings under 500 chars
+        customerNotes: notes ? notes.substring(0, 490) : "",
+      },
     });
 
     return respond(200, { url: session.url }, event);
