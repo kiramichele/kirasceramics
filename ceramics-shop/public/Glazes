@@ -341,12 +341,8 @@
   <!-- Note -->
   <div class="note-box">
     <h3>How to request a glaze 💕</h3>
-    <p>When you add something to your cart, you'll see a <strong>personalization box</strong> before checkout! Just type in the glaze name (or names — mix and match is totally fine to ask about) and any other requests you have. I'll reach out if I have questions. Not sure which to pick? Feel free to <a href="mailto:hello@example.com">send me an email</a> and I can help!</p>
+    <p>When you add something to your cart, you'll see a <strong>personalization box</strong> before checkout! Just type in the glaze name (or names — mix and match is totally fine to ask about) and any other requests you have. I'll reach out if I have questions. Not sure which to pick? Feel free to <a href="/cdn-cgi/l/email-protection#6c04090000032c09140d011c0009420f0301">send me an email</a> and I can help!</p>
   </div>
 
   <footer>
-    <p>© 2025 Kira's Ceramics · <a href="/">Back to Shop</a> · Questions? <a href="mailto:hello@example.com">Say hi!</a></p>
-  </footer>
-
-</body>
-</html>
+    <p>© 2025 Kira's Ceramics · <a href="/">Back to Shop</a> · Questions? <a href="/cdn-cgi/l/email-protection#eb8
