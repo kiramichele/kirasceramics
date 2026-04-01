@@ -671,7 +671,7 @@
           lineItems: [{ price: product.stripePriceId, quantity: qty }],
           mode: 'payment',
           successUrl: `${window.location.origin}/success.html?product=${product.id}`,
-          cancelUrl: window.location.href,
+          cancelUrl: `${window.location.origin}/cancel.html`,
           shippingAddressCollection: { allowedCountries: ['US'] },
         });
 
