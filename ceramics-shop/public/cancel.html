@@ -1,44 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout Cancelled — Fired & Found</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout cancelled — Shiro Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --cream: #F7EFE3; --earth: #2C1A10; --terra: #B5603A; --mud: #6B4A35;
-      --font-display: "Cormorant Garamond", Georgia, serif;
-      --font-body: "Jost", sans-serif;
+      --cream:      #F5EFE6;
+      --cream-dark: #EDE3D6;
+      --espresso:   #2C1A0E;
+      --clay:       #C4907A;
+      --terra:      #8B5A3A;
+      --sand:       #C4A882;
+      --sage:       #7B9E87;
+      --muted:      #7A5A44;
+      --hint:       #B07A5A;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
+      font-family: 'DM Sans', sans-serif;
       background: var(--cream);
-      font-family: var(--font-body);
-      font-weight: 300;
+      color: var(--espresso);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── nav ── */
+    nav {
+      padding: 22px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(196,168,130,0.2);
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--espresso);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--clay); font-style: italic; }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--espresso); }
+
+    /* ── main ── */
+    main {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
+      padding: 64px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .blob-1 { width: 400px; height: 400px; background: var(--sand); opacity: 0.1; top: -100px; right: -80px; }
+    .blob-2 { width: 300px; height: 300px; background: var(--clay); opacity: 0.07; bottom: -80px; left: -60px; }
+
+    .cancel-card {
+      background: white;
+      border-radius: 24px;
+      border: 1px solid rgba(196,168,130,0.25);
+      padding: 64px 56px;
+      max-width: 520px;
+      width: 100%;
       text-align: center;
-      padding: 2rem;
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.6s ease forwards 0.1s;
     }
-    .icon { font-size: 2.5rem; margin-bottom: 1.5rem; opacity: 0.5; }
-    h1 { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3rem); font-weight: 300; color: var(--earth); margin-bottom: 1rem; }
-    p { color: var(--mud); line-height: 1.7; max-width: 380px; margin: 0 auto 2rem; }
-    a.back {
-      display: inline-block; background: var(--earth); color: var(--cream);
-      text-decoration: none; padding: 0.7rem 1.6rem; font-size: 0.78rem;
-      letter-spacing: 0.12em; text-transform: uppercase; border-radius: 2px;
+
+    /* ── circle icon ── */
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards 0.4s;
     }
-    a.back:hover { background: var(--terra); }
+
+    .cancel-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hint);
+      margin-bottom: 12px;
+    }
+
+    .cancel-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--espresso);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .cancel-title em { font-style: italic; color: var(--clay); }
+
+    .cancel-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── actions ── */
+    .action-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--terra); transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 100px;
+      border: 1px solid rgba(196,168,130,0.3);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--espresso); border-color: rgba(196,168,130,0.6); }
+
+    /* ── reassurance strip ── */
+    .reassurance {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(196,168,130,0.2);
+      flex-wrap: wrap;
+    }
+
+    .reassurance-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .reassurance-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reassurance-label {
+      font-size: 11px;
+      color: var(--hint);
+      font-weight: 300;
+      text-align: center;
+    }
+
+    /* ── footer ── */
+    footer {
+      background: var(--espresso);
+      padding: 28px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: #F0E6D8;
+    }
+    .footer-brand span { font-style: italic; color: var(--clay); }
+    .footer-copy { font-size: 11px; color: #3E2E22; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 18px 24px; }
+      .nav-links { display: none; }
+      main { padding: 40px 20px; }
+      .cancel-card { padding: 40px 28px; }
+      .action-row { flex-direction: column; align-items: center; }
+      footer { padding: 28px 24px; flex-direction: column; gap: 10px; text-align: center; }
+    }
   </style>
 </head>
 <body>
-  <div class="icon">◦</div>
-  <h1>No worries.</h1>
-  <p>Your checkout was cancelled and nothing was charged. The shop will be here whenever you're ready.</p>
-  <a class="back" href="/">← Back to the shop</a>
+
+  <nav>
+    <a href="/" class="nav-logo">Shiro <span>Studio</span></a>
+    <ul class="nav-links">
+      <li><a href="/shop.html">Shop</a></li>
+      <li><a href="/glazes.html">Glazes</a></li>
+      <li><a href="/#story">About</a></li>
+      <li><a href="/#commission">Commission</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="cancel-card">
+
+      <div class="icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="11" stroke="#C4A882" stroke-width="1.5"/>
+          <path d="M14 8v7" stroke="#C4A882" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="14" cy="19" r="1" fill="#C4A882"/>
+        </svg>
+      </div>
+
+      <p class="cancel-eyebrow">Checkout cancelled</p>
+      <h1 class="cancel-title">No worries —<br>the shop is <em>still here.</em></h1>
+      <p class="cancel-body">Nothing was charged. Whenever you're ready, the pieces will be waiting. Take your time.</p>
+
+      <div class="action-row">
+        <a href="/shop.html" class="btn-primary">
+          Back to the shop
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="/" class="btn-ghost">Go home</a>
+      </div>
+
+      <div class="reassurance">
+        <div class="reassurance-item">
+          <div class="reassurance-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1.5" stroke="#C4A882" stroke-width="1.2"/><path d="M4 4V3a3 3 0 0 1 6 0v1" stroke="#C4A882" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <span class="reassurance-label">Nothing charged</span>
+        </div>
+        <div class="reassurance-item">
+          <div class="reassurance-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="#C4A882" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/><circle cx="7" cy="7" r="5" stroke="#C4A882" stroke-width="1.2"/></svg>
+          </div>
+          <span class="reassurance-label">Items still available</span>
+        </div>
+        <div class="reassurance-item">
+          <div class="reassurance-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2 Q3 4 3 7 Q3 11 7 12 Q11 11 11 7 Q11 4 7 2Z" stroke="#C4A882" stroke-width="1.2" fill="none"/><path d="M5 7l1.5 1.5L9 5" stroke="#C4A882" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="reassurance-label">Secure checkout</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-brand">Shiro <span>Studio</span></div>
+    <p class="footer-copy">© 2026 Shiro Studio · Kira Shinn · All rights reserved</p>
+  </footer>
+
 </body>
 </html>
