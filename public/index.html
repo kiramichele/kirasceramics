@@ -1,89 +1,1152 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shiro Studio — Handmade Ceramics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <style>
+    /* ── tokens ── */
+    :root {
+      --cream:      #F5EFE6;
+      --cream-dark: #EDE3D6;
+      --espresso:   #2C1A0E;
+      --clay:       #C4907A;
+      --terra:      #8B5A3A;
+      --sand:       #C4A882;
+      --sage:       #7B9E87;
+      --muted:      #7A5A44;
+      --hint:       #B07A5A;
+    }
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--espresso);
+      overflow-x: hidden;
+    }
+
+    /* ── noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 22px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(245,239,230,0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(196,168,130,0.2);
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--espresso);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo span { color: var(--clay); font-style: italic; }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--espresso); }
+
+    .nav-cta {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--cream);
+      background: var(--espresso);
+      padding: 9px 20px;
+      border-radius: 100px;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: background 0.2s;
+    }
+
+    .nav-cta:hover { background: var(--terra); }
+
+    /* ── hero ── */
+    .hero {
+      min-height: 100vh;
+      padding: 140px 48px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-blob-1 {
+      width: 500px; height: 500px;
+      background: var(--clay);
+      opacity: 0.08;
+      top: 10%; right: -100px;
+    }
+
+    .hero-blob-2 {
+      width: 300px; height: 300px;
+      background: var(--sage);
+      opacity: 0.07;
+      bottom: 5%; left: -60px;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hint);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.1s;
+    }
+
+    .hero-headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(42px, 5.5vw, 68px);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--espresso);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.2s;
+    }
+
+    .hero-headline em {
+      font-style: italic;
+      color: var(--clay);
+    }
+
+    .hero-body {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 420px;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.35s;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.5s;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 13px 26px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover { background: var(--terra); transform: translateY(-1px); }
+
+    .btn-ghost {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .btn-ghost:hover { color: var(--espresso); }
+
+    /* hero illustration */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards 0.4s;
+    }
+
+    .hero-ring {
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: var(--cream-dark);
+      border: 1px solid rgba(196,144,122,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-ring::before {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      border: 1px dashed rgba(196,144,122,0.25);
+    }
+
+    .floating-tag {
+      position: absolute;
+      background: white;
+      border: 1px solid rgba(196,168,130,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
+      color: var(--muted);
+      box-shadow: 0 4px 20px rgba(44,26,14,0.06);
+    }
+
+    .tag-1 { top: 20px; right: -20px; }
+    .tag-2 { bottom: 40px; left: -30px; }
+    .tag-3 { top: 50%; right: -50px; transform: translateY(-50%); }
+
+    .tag-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── section shared ── */
+    section { position: relative; }
+
+    .section-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hint);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--espresso);
+      margin-bottom: 16px;
+    }
+
+    .section-title em { font-style: italic; color: var(--clay); }
+
+    /* ── divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sand), transparent);
+      margin: 0 48px;
+    }
+
+    /* ── featured ── */
+    .featured {
+      padding: 96px 48px;
+    }
+
+    .featured-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 52px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .product-card {
+      background: var(--cream-dark);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(196,168,130,0.2);
+      transition: transform 0.25s, box-shadow 0.25s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(44,26,14,0.1);
+    }
+
+    .product-img {
+      aspect-ratio: 1;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-info {
+      padding: 18px 20px 20px;
+    }
+
+    .product-category {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hint);
+      margin-bottom: 5px;
+    }
+
+    .product-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--espresso);
+      margin-bottom: 6px;
+    }
+
+    .product-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--espresso);
+    }
+
+    .product-btn {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--cream);
+      background: var(--espresso);
+      padding: 7px 14px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .product-btn:hover { background: var(--terra); }
+
+    /* ── story section ── */
+    .story {
+      padding: 96px 48px;
+      background: var(--espresso);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .story-text .section-title { color: #F0E6D8; }
+    .story-text .section-title em { color: var(--clay); }
+    .story-text .section-eyebrow { color: var(--terra); }
+
+    .story-body {
+      font-size: 15px;
+      font-weight: 300;
+      color: #9A8070;
+      line-height: 1.85;
+      margin-bottom: 28px;
+    }
+
+    .story-body + .story-body { margin-top: -12px; }
+
+    .story-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 40px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: #F0E6D8;
+      line-height: 1.1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: #6B5A48;
+      font-weight: 300;
+      margin-top: 3px;
+    }
+
+    .story-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .process-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+
+    .step-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: rgba(196,144,122,0.3);
+      line-height: 1;
+      min-width: 32px;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #D4C0AE;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: #6B5A48;
+      font-weight: 300;
+      line-height: 1.55;
+    }
+
+    /* ── categories ── */
+    .categories {
+      padding: 96px 48px;
+    }
+
+    .categories-header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .cat-card {
+      background: var(--cream-dark);
+      border-radius: 14px;
+      padding: 28px 22px;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid rgba(196,168,130,0.2);
+      transition: transform 0.2s, background 0.2s;
+      display: block;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-3px);
+      background: white;
+    }
+
+    .cat-icon {
+      margin-bottom: 14px;
+    }
+
+    .cat-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px;
+      color: var(--espresso);
+      margin-bottom: 5px;
+    }
+
+    .cat-count {
+      font-size: 11px;
+      color: var(--hint);
+    }
+
+    /* ── quote ── */
+    .quote-section {
+      padding: 80px 48px;
+      text-align: center;
+      background: var(--cream-dark);
+    }
+
+    .quote-mark {
+      font-family: 'DM Serif Display', serif;
+      font-size: 80px;
+      color: var(--clay);
+      opacity: 0.3;
+      line-height: 0.5;
+      margin-bottom: 20px;
+    }
+
+    .quote-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-style: italic;
+      color: var(--espresso);
+      line-height: 1.5;
+      max-width: 680px;
+      margin: 0 auto 24px;
+    }
+
+    .quote-attr {
+      font-size: 12px;
+      color: var(--hint);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── commission ── */
+    .commission {
+      padding: 96px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .commission-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .commission-visual {
+      background: var(--cream-dark);
+      border-radius: 20px;
+      padding: 40px;
+      border: 1px solid rgba(196,168,130,0.2);
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hint);
+    }
+
+    .form-input {
+      background: white;
+      border: 1px solid rgba(196,168,130,0.3);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--espresso);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .form-input:focus { border-color: var(--clay); }
+
+    textarea.form-input { resize: vertical; min-height: 90px; }
+
+    /* ── footer ── */
+    footer {
+      background: var(--espresso);
+      padding: 52px 48px 36px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: #F0E6D8;
+      margin-bottom: 10px;
+    }
+
+    .footer-brand span { font-style: italic; color: var(--clay); }
+
+    .footer-tagline {
+      font-size: 13px;
+      color: #6B5A48;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .footer-col-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: #6B5A48;
+      text-decoration: none;
+      font-weight: 300;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: #D4C0AE; }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: #3E2E22;
+    }
+
+    .footer-location {
+      font-size: 11px;
+      color: #3E2E22;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 18px 24px; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 120px 24px 64px; }
+      .hero-visual { display: none; }
+      .featured, .categories, .commission, .story { padding: 64px 24px; }
+      .product-grid { grid-template-columns: 1fr 1fr; }
+      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .story, .commission { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .divider { margin: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── nav ── -->
+  <nav>
+    <a href="/" class="nav-logo">Shiro <span>Studio</span></a>
+    <ul class="nav-links">
+      <li><a href="/shop.html">Shop</a></li>
+      <li><a href="#story">About</a></li>
+      <li><a href="#commission">Commission</a></li>
+    </ul>
+    <a href="/shop.html" class="nav-cta">Shop now</a>
+  </nav>
+
+  <!-- ── hero ── -->
+  <section class="hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Handmade in Burgaw, NC</p>
+      <h1 class="hero-headline">Made slowly,<br>made <em>by hand,</em><br>made to last.</h1>
+      <p class="hero-body">Wheel-thrown stoneware and earthenware — mugs, bowls, planters, brush rests, and more — made one piece at a time in a small home studio on the North Carolina coast.</p>
+      <div class="hero-actions">
+        <a href="/shop.html" class="btn-primary">
+          Shop the collection
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#story" class="btn-ghost">
+          Our story
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    <div class="hero-visual">
+      <div class="hero-ring">
+        <svg width="220" height="260" viewBox="0 0 220 260" fill="none">
+          <!-- large mug -->
+          <path d="M48 54 Q44 195 50 210 Q90 226 132 223 Q170 220 174 208 Q178 195 174 54 Z" fill="#C4907A" opacity="0.85"/>
+          <ellipse cx="111" cy="54" rx="63" ry="16" fill="#D4A892"/>
+          <path d="M82 54 Q78 100 80 140 Q81 155 85 162" stroke="#8B5A3A" stroke-width="4" stroke-linecap="round" opacity="0.35"/>
+          <path d="M115 54 Q112 82 113 110" stroke="#8B5A3A" stroke-width="3" stroke-linecap="round" opacity="0.25"/>
+          <path d="M174 95 Q208 95 208 135 Q208 175 174 175" stroke="#B07A5A" stroke-width="12" stroke-linecap="round" fill="none"/>
+          <path d="M174 95 Q198 95 198 135 Q198 175 174 175" stroke="#C4907A" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <ellipse cx="111" cy="220" rx="63" ry="9" fill="#2C1A0E" opacity="0.07"/>
+          <ellipse cx="111" cy="54" rx="53" ry="10" fill="#8B5A3A" opacity="0.2"/>
+          <!-- small bowl beside -->
+          <path d="M14 188 Q10 228 16 235 Q34 242 56 240 Q78 238 80 233 Q82 226 78 188 Z" fill="#7B9E87" opacity="0.7"/>
+          <ellipse cx="47" cy="188" rx="33" ry="9" fill="#A8C4B0"/>
+          <ellipse cx="47" cy="237" rx="33" ry="5" fill="#2C1A0E" opacity="0.06"/>
+        </svg>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+        <div class="floating-tag tag-1">
+          <span class="tag-dot" style="background:#C4907A;"></span>Handthrown stoneware
+        </div>
+        <div class="floating-tag tag-2">
+          <span class="tag-dot" style="background:#7B9E87;"></span>Original glazes
+        </div>
+        <div class="floating-tag tag-3">
+          <span class="tag-dot" style="background:#C4A882;"></span>Small-batch runs
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── featured products ── -->
+  <section class="featured">
+    <div class="featured-header">
+      <div>
+        <p class="section-eyebrow">New in the studio</p>
+        <h2 class="section-title">Featured <em>pieces</em></h2>
+      </div>
+      <a href="/shop.html" class="btn-ghost">
+        View all
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="product-grid">
+      <!-- Card 1 -->
+      <a href="/product.html?id=mug-sage" class="product-card">
+        <div class="product-img">
+          <div class="product-img-placeholder">
+            <svg width="120" height="140" viewBox="0 0 120 140" fill="none">
+              <path d="M22 28 Q20 108 23 116 Q46 124 72 122 Q96 120 98 114 Q100 106 98 28 Z" fill="#7B9E87" opacity="0.8"/>
+              <ellipse cx="60" cy="28" rx="38" ry="10" fill="#A8C4B0"/>
+              <path d="M98 50 Q116 50 116 70 Q116 90 98 90" stroke="#6A8E76" stroke-width="8" stroke-linecap="round" fill="none"/>
+              <ellipse cx="60" cy="120" rx="38" ry="6" fill="#2C1A0E" opacity="0.07"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Mug</p>
+          <h3 class="product-name">Sage Field Mug</h3>
+          <p class="product-desc">Wheel-thrown stoneware with a matte sage glaze. Holds 12oz comfortably.</p>
+          <div class="product-footer">
+            <span class="product-price">$38</span>
+            <span class="product-btn">Add to cart</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="/product.html?id=planter-terracotta" class="product-card">
+        <div class="product-img">
+          <div class="product-img-placeholder">
+            <svg width="120" height="140" viewBox="0 0 120 140" fill="none">
+              <path d="M30 40 Q20 110 24 120 Q48 132 72 130 Q96 128 96 118 Q96 106 90 40 Z" fill="#C4907A" opacity="0.85"/>
+              <ellipse cx="60" cy="40" rx="30" ry="8" fill="#D4A892"/>
+              <ellipse cx="60" cy="128" rx="36" ry="7" fill="#2C1A0E" opacity="0.07"/>
+              <ellipse cx="60" cy="38" rx="24" ry="6" fill="#8B5A3A" opacity="0.25"/>
+              <!-- drainage hole suggestion -->
+              <ellipse cx="60" cy="126" rx="8" ry="3" fill="#8B5A3A" opacity="0.2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Planter</p>
+          <h3 class="product-name">Terra Pocket Planter</h3>
+          <p class="product-desc">Small planter with drainage hole, perfect for succulents or herbs. Terracotta glaze.</p>
+          <div class="product-footer">
+            <span class="product-price">$28</span>
+            <span class="product-btn">Add to cart</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a href="/product.html?id=brush-rest-clay" class="product-card">
+        <div class="product-img">
+          <div class="product-img-placeholder">
+            <svg width="160" height="80" viewBox="0 0 160 80" fill="none">
+              <path d="M20 50 Q30 28 80 26 Q130 28 140 50 Q148 65 80 68 Q12 65 20 50Z" fill="#C4A882" opacity="0.85"/>
+              <path d="M28 50 Q34 36 80 34 Q126 36 132 50" stroke="#8B5A3A" stroke-width="2" opacity="0.2" fill="none"/>
+              <!-- notches -->
+              <path d="M55 30 Q55 22 58 20 Q61 18 61 26" stroke="#8B5A3A" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5"/>
+              <path d="M75 28 Q75 20 78 18 Q81 16 81 24" stroke="#8B5A3A" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5"/>
+              <path d="M95 30 Q95 22 98 20 Q101 18 101 26" stroke="#8B5A3A" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Brush Rest</p>
+          <h3 class="product-name">Sand Wave Brush Rest</h3>
+          <p class="product-desc">Hand-formed brush rest with three notches. Warm sand glaze, speckled finish.</p>
+          <div class="product-footer">
+            <span class="product-price">$22</span>
+            <span class="product-btn">Add to cart</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── categories ── -->
+  <section class="categories">
+    <div class="categories-header">
+      <p class="section-eyebrow">Browse by type</p>
+      <h2 class="section-title">The full <em>collection</em></h2>
+    </div>
+
+    <div class="cat-grid">
+      <a href="/shop.html?cat=mugs" class="cat-card">
+        <div class="cat-icon">
+          <svg width="32" height="36" viewBox="0 0 32 36" fill="none">
+            <path d="M6 7 Q5 27 7 30 Q14 33 20 32 Q27 31 27 29 Q28 26 27 7Z" fill="#C4907A" opacity="0.7"/>
+            <ellipse cx="16" cy="7" rx="11" ry="3" fill="#D4A892"/>
+            <path d="M27 13 Q34 13 34 19 Q34 25 27 25" stroke="#B07A5A" stroke-width="3" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="cat-name">Mugs</div>
+        <div class="cat-count">Stoneware · 10–16oz</div>
+      </a>
+
+      <a href="/shop.html?cat=bowls" class="cat-card">
+        <div class="cat-icon">
+          <svg width="36" height="24" viewBox="0 0 36 24" fill="none">
+            <path d="M4 10 Q2 22 6 23 Q18 26 30 23 Q34 22 32 10Z" fill="#7B9E87" opacity="0.7"/>
+            <ellipse cx="18" cy="10" rx="14" ry="4" fill="#A8C4B0"/>
+          </svg>
+        </div>
+        <div class="cat-name">Bowls</div>
+        <div class="cat-count">Various sizes</div>
+      </a>
+
+      <a href="/shop.html?cat=planters" class="cat-card">
+        <div class="cat-icon">
+          <svg width="30" height="36" viewBox="0 0 30 36" fill="none">
+            <path d="M6 10 Q4 28 6 32 Q14 36 22 34 Q28 32 24 10Z" fill="#C4A882" opacity="0.7"/>
+            <ellipse cx="15" cy="10" rx="9" ry="3" fill="#D4C0A0"/>
+          </svg>
+        </div>
+        <div class="cat-name">Planters</div>
+        <div class="cat-count">With drainage holes</div>
+      </a>
+
+      <a href="/shop.html?cat=paint-palettes" class="cat-card">
+        <div class="cat-icon">
+          <svg width="36" height="28" viewBox="0 0 36 28" fill="none">
+            <rect x="2" y="4" width="32" height="20" rx="4" fill="#EDE3D6" stroke="#C4A882" stroke-width="1.5"/>
+            <circle cx="10" cy="14" r="3" fill="#C4907A"/>
+            <circle cx="18" cy="10" r="3" fill="#7B9E87"/>
+            <circle cx="26" cy="14" r="3" fill="#C4A882"/>
+            <circle cx="18" cy="19" r="3" fill="#8B5A3A" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="cat-name">Paint Palettes</div>
+        <div class="cat-count">Handformed wells</div>
+      </a>
+
+      <a href="/shop.html?cat=brush-rests" class="cat-card">
+        <div class="cat-icon">
+          <svg width="38" height="20" viewBox="0 0 38 20" fill="none">
+            <path d="M4 12 Q8 5 19 4 Q30 5 34 12 Q36 17 19 18 Q2 17 4 12Z" fill="#C4A882" opacity="0.7"/>
+            <path d="M14 6 Q14 1 16 0" stroke="#8B5A3A" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <path d="M19 5 Q19 0 21 -1" stroke="#8B5A3A" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <path d="M24 6 Q24 1 26 0" stroke="#8B5A3A" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="cat-name">Brush Rests</div>
+        <div class="cat-count">3 and 5 notch</div>
+      </a>
+
+      <a href="/shop.html?cat=coasters" class="cat-card">
+        <div class="cat-icon">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+            <circle cx="17" cy="17" r="14" fill="#EDE3D6" stroke="#C4A882" stroke-width="1.5"/>
+            <circle cx="17" cy="17" r="8" fill="none" stroke="#C4907A" stroke-width="1" opacity="0.4"/>
+            <circle cx="17" cy="17" r="3" fill="#C4907A" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="cat-name">Coasters</div>
+        <div class="cat-count">Sets of 4</div>
+      </a>
+
+      <a href="/shop.html?cat=keychains" class="cat-card">
+        <div class="cat-icon">
+          <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+            <circle cx="14" cy="10" r="7" fill="none" stroke="#C4A882" stroke-width="2"/>
+            <circle cx="14" cy="10" r="3" fill="#C4907A" opacity="0.6"/>
+            <rect x="11" y="17" width="6" height="14" rx="3" fill="#C4A882" opacity="0.8"/>
+          </svg>
+        </div>
+        <div class="cat-name">Keychains</div>
+        <div class="cat-count">Stamped & glazed</div>
+      </a>
+
+      <a href="#commission" class="cat-card">
+        <div class="cat-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M4 28 L4 20 L14 10 L22 18 L12 28Z" fill="#7B9E87" opacity="0.6"/>
+            <path d="M14 10 L20 4 Q24 0 28 4 Q32 8 28 12 L22 18Z" fill="#C4907A" opacity="0.7"/>
+            <circle cx="24" cy="8" r="2" fill="#8B5A3A" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="cat-name">Commission</div>
+        <div class="cat-count">Custom work</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── story ── -->
+  <section class="story" id="story">
+    <div class="story-text">
+      <p class="section-eyebrow">The studio</p>
+      <h2 class="section-title">One wheel,<br>one kiln, <em>one pair<br>of hands.</em></h2>
+      <p class="story-body">I'm Kira — a teacher and developer by day, and a potter whenever I can sneak away to the studio. Shiro Studio started because I needed something to do with my hands that had nothing to do with a screen.</p>
+      <p class="story-body">Everything is made in my home studio in Burgaw, NC. I throw, trim, glaze, and fire each piece myself with a small Vevor kiln. No two pieces are exactly alike, and that's the point.</p>
+
+      <div class="story-stats">
+        <div>
+          <div class="stat-label">Location</div>
+          <div class="stat-val">Burgaw</div>
+          <div class="stat-sub">Coastal North Carolina</div>
+        </div>
+        <div>
+          <div class="stat-label">Process</div>
+          <div class="stat-val">Wheel-thrown</div>
+          <div class="stat-sub">Trimmed, hand-glazed, kiln fired</div>
+        </div>
+        <div>
+          <div class="stat-label">Materials</div>
+          <div class="stat-val">Stoneware</div>
+          <div class="stat-sub">& earthenware clay bodies</div>
+        </div>
+        <div>
+          <div class="stat-label">Batches</div>
+          <div class="stat-val">Small</div>
+          <div class="stat-sub">Each piece made one at a time</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-visual">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Throw</div>
+          <div class="step-desc">Each piece starts on the wheel — pulled up from a centered lump of clay, shaped by hand and feel.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Trim & dry</div>
+          <div class="step-desc">After drying to leather-hard, the base is trimmed and any attachments — handles, feet — are added.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Bisque fire</div>
+          <div class="step-desc">The first kiln firing burns away organic material and makes the clay hard enough to hold glaze.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div>
+          <div class="step-title">Glaze & fire</div>
+          <div class="step-desc">Hand-dipped or brushed in original glaze recipes, then fired to cone 6. The kiln does the rest.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── quote ── -->
+  <section class="quote-section">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">There's something grounding about making things with your hands when your whole workday lives on a screen. Clay doesn't care about your code.</p>
+    <p class="quote-attr">— Kira Shinn · Teacher, developer, potter</p>
+  </section>
+
+  <!-- ── commission ── -->
+  <section class="commission" id="commission">
+    <div>
+      <p class="section-eyebrow">Custom work</p>
+      <h2 class="section-title">Commission a <em>piece</em></h2>
+      <p class="commission-body">Have something specific in mind? I take a limited number of custom commissions each season — personalized mugs, matching sets, custom planters, or something completely one-of-a-kind. Reach out and we'll figure out what's possible.</p>
+      <p class="commission-body">Typical turnaround is 3–6 weeks depending on what's in the kiln queue. Pricing varies by piece.</p>
+    </div>
+    <div class="commission-visual">
+      <form class="form-row" onsubmit="handleCommission(event)">
+        <div class="form-field">
+          <label class="form-label">Your name</label>
+          <input class="form-input" type="text" placeholder="First and last name">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-field">
+          <label class="form-label">What are you looking for?</label>
+          <textarea class="form-input" placeholder="Tell me about what you have in mind — the piece, glaze color, size, quantity, occasion..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:4px; justify-content:center;">
+          Send inquiry
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── footer ── -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Shiro <span>Studio</span></div>
+        <p class="footer-tagline">Handmade ceramics from a small studio in coastal North Carolina. Made slowly, made by hand, made to last.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Shop</div>
+        <ul class="footer-links">
+          <li><a href="/shop.html?cat=mugs">Mugs</a></li>
+          <li><a href="/shop.html?cat=bowls">Bowls</a></li>
+          <li><a href="/shop.html?cat=planters">Planters</a></li>
+          <li><a href="/shop.html?cat=keychains">Keychains</a></li>
+          <li><a href="/shop.html?cat=coasters">Coasters</a></li>
+          <li><a href="/shop.html?cat=paint-palettes">Paint Palettes</a></li>
+          <li><a href="/shop.html?cat=brush-rests">Brush Rests</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Studio</div>
+        <ul class="footer-links">
+          <li><a href="#story">About</a></li>
+          <li><a href="#commission">Commission a piece</a></li>
+          <li><a href="https://etsy.com" target="_blank">Etsy shop</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Shiro Studio · Kira Shinn · All rights reserved</p>
+      <p class="footer-location">
+        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 7 5 7s5-3.25 5-7c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 5 3.5a1.5 1.5 0 0 1 0 3z" fill="#3E2E22"/></svg>
+        Burgaw, NC
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    function handleCommission(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.textContent = 'Sent! I\'ll be in touch soon.';
+      btn.style.background = '#7B9E87';
+      btn.disabled = true;
+    }
+  </script>
+
+</body>
 </html>
