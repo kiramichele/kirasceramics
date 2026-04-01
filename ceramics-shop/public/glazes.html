@@ -1,229 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glaze Gallery — Kira's Ceramics</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glazes — Shiro Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --blue: #A8DDEF; --blue-light: #D6F0FA; --blue-mid: #7ECDE8; --blue-dark: #3A9DBF;
-      --pink: #E8237A; --pink-light: #FF6BAE; --pink-pale: #FFD6EC;
-      --white: #fff; --text: #1A3A4A; --text-soft: #4A7A8A;
-      --font-display: "Fredoka", sans-serif; --font-body: "Nunito", sans-serif;
-      --radius: 20px;
+      --cream:      #F5EFE6;
+      --cream-dark: #EDE3D6;
+      --espresso:   #2C1A0E;
+      --clay:       #C4907A;
+      --terra:      #8B5A3A;
+      --sand:       #C4A882;
+      --sage:       #7B9E87;
+      --muted:      #7A5A44;
+      --hint:       #B07A5A;
     }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { background: var(--blue-light); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
-    body::before { content: ''; display: block; height: 8px; background: repeating-linear-gradient(90deg, var(--pink) 0px, var(--pink) 20px, var(--blue-mid) 20px, var(--blue-mid) 40px, var(--pink-light) 40px, var(--pink-light) 60px, var(--blue) 60px, var(--blue) 80px); }
-    header { background: var(--white); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 0 var(--blue-mid); height: 68px; position: sticky; top: 0; z-index: 100; }
-    .logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--pink); text-decoration: none; }
-    .logo span { color: var(--blue-dark); }
-    nav a { font-family: var(--font-display); font-size: 1rem; font-weight: 500; color: var(--text-soft); text-decoration: none; margin-left: 1.5rem; transition: color 0.2s; }
-    nav a:hover { color: var(--pink); }
-    .hero { background: var(--white); margin: 2rem; border-radius: var(--radius); padding: 3rem 3rem 2.5rem; box-shadow: 6px 6px 0 var(--blue-mid); position: relative; overflow: hidden; }
-    .hero::after { content: '🎨✨'; position: absolute; right: 2.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; letter-spacing: 0.4em; animation: float 3s ease-in-out infinite; }
-    @keyframes float { 0%,100% { transform: translateY(-50%) rotate(-3deg); } 50% { transform: translateY(-58%) rotate(3deg); } }
-    .hero-tag { display: inline-block; background: var(--pink-pale); color: var(--pink); font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; padding: 4px 14px; border-radius: 100px; margin-bottom: 1rem; }
-    .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.75rem; }
-    .hero h1 span { color: var(--pink); }
-    .hero-sub { font-size: 0.95rem; color: var(--text-soft); line-height: 1.7; max-width: 480px; margin-bottom: 1.25rem; }
-    .hero-cta { display: inline-block; background: var(--pink); color: white; font-family: var(--font-display); font-size: 1rem; font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 100px; text-decoration: none; transition: background 0.2s; }
-    .hero-cta:hover { background: var(--pink-light); }
-    .section { max-width: 1140px; margin: 0 auto; padding: 2rem 2rem 1rem; }
-    .section-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 1.5rem; }
-    .glaze-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 3rem; }
-    .glaze-card { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: 4px 4px 0 var(--blue-mid); transition: transform 0.25s, box-shadow 0.25s; border: 2px solid var(--white); }
-    .glaze-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--pink-light); border-color: var(--pink-pale); }
-    .glaze-card.coming-soon { opacity: 0.8; }
-    .glaze-swatch { width: 100%; height: 130px; overflow: hidden; position: relative; background: var(--blue-light); }
-    .glaze-swatch img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
-    .glaze-card:hover .glaze-swatch img { transform: scale(1.06); }
-    .glaze-soon-badge { position: absolute; top: 8px; right: 8px; background: var(--text); color: var(--blue); font-family: var(--font-display); font-size: 0.65rem; font-weight: 600; padding: 3px 8px; border-radius: 100px; z-index: 1; letter-spacing: 0.05em; }
-    .glaze-info { padding: 0.85rem 1rem 1rem; }
-    .glaze-name { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
-    .glaze-desc { font-size: 0.78rem; color: var(--text-soft); line-height: 1.5; }
-    .note-box { background: var(--white); border-radius: var(--radius); padding: 2rem 2.5rem; box-shadow: 5px 5px 0 var(--pink-light); margin: 0 2rem 3rem; border: 2px solid var(--pink-pale); }
-    .note-box h3 { font-family: var(--font-display); font-size: 1.4rem; color: var(--pink); margin-bottom: 0.5rem; }
-    .note-box p { color: var(--text-soft); font-size: 0.9rem; line-height: 1.7; }
-    .note-box a { color: var(--pink); font-weight: 600; }
-    footer { background: var(--white); border-top: 3px solid var(--blue-mid); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; color: var(--text-soft); font-family: var(--font-display); }
-    footer a { color: var(--pink); text-decoration: none; }
-    @media (max-width: 600px) {
-      nav { display: none; }
-      .hero { margin: 1rem; padding: 2rem 1.5rem; }
-      .hero::after { display: none; }
-      .section { padding: 1.5rem 1rem 0.5rem; }
-      .note-box { margin: 0 1rem 2rem; padding: 1.5rem; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--espresso);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 22px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(245,239,230,0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(196,168,130,0.2);
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--espresso);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--clay); font-style: italic; }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--espresso); }
+
+    .nav-cta {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--cream);
+      background: var(--espresso);
+      padding: 9px 20px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--terra); }
+
+    /* ── page header ── */
+    .page-header {
+      padding: 140px 48px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .blob-1 { width: 420px; height: 420px; background: var(--clay); opacity: 0.07; top: -100px; right: -80px; }
+    .blob-2 { width: 260px; height: 260px; background: var(--sage); opacity: 0.06; bottom: -60px; left: -40px; }
+
+    .page-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hint);
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 400;
+      color: var(--espresso);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .page-title em { font-style: italic; color: var(--clay); }
+
+    .page-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--espresso); }
+
+    /* ── divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sand), transparent);
+      margin: 0 48px;
+    }
+
+    /* ── content ── */
+    .content {
+      padding: 64px 48px 96px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--espresso);
+    }
+    .section-title em { font-style: italic; color: var(--clay); }
+
+    .section-count {
+      font-size: 12px;
+      color: var(--hint);
+      font-weight: 300;
+    }
+
+    /* ── glaze grid ── */
+    .glaze-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 72px;
+    }
+
+    .glaze-card {
+      background: var(--cream-dark);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(196,168,130,0.2);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .glaze-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(44,26,14,0.1);
+    }
+
+    .glaze-card.coming-soon { opacity: 0.7; }
+    .glaze-card.coming-soon:hover { transform: none; box-shadow: none; }
+
+    .glaze-swatch {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      position: relative;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .glaze-swatch img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .glaze-card:hover .glaze-swatch img { transform: scale(1.05); }
+
+    .glaze-swatch-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .soon-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--espresso);
+      color: var(--cream);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 100px;
+      z-index: 2;
+    }
+
+    .glaze-info {
+      padding: 14px 16px 16px;
+    }
+
+    .glaze-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 15px;
+      color: var(--espresso);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .glaze-desc {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+    }
+
+    /* ── how-to note ── */
+    .note-card {
+      background: var(--espresso);
+      border-radius: 20px;
+      padding: 44px 48px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .note-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 10px;
+    }
+
+    .note-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: #F0E6D8;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .note-title em { font-style: italic; color: var(--clay); }
+
+    .note-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: #9A8070;
+      line-height: 1.75;
+      max-width: 520px;
+    }
+
+    .note-body a {
+      color: var(--clay);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .note-body a:hover { color: var(--sand); }
+
+    .note-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--clay);
+      color: var(--espresso);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .note-action:hover { background: var(--sand); }
+
+    /* ── footer ── */
+    footer {
+      background: var(--espresso);
+      padding: 40px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: #F0E6D8;
+    }
+    .footer-brand span { font-style: italic; color: var(--clay); }
+    .footer-copy { font-size: 11px; color: #3E2E22; }
+
+    /* ── responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 18px 24px; }
+      .nav-links { display: none; }
+      .page-header, .content { padding-left: 24px; padding-right: 24px; }
+      .divider { margin: 0 24px; }
+      .note-card { grid-template-columns: 1fr; padding: 32px 28px; }
       .glaze-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      footer { padding: 28px 24px; flex-direction: column; gap: 10px; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <a class="logo" href="/">Kira's <span>Ceramics</span></a>
   <nav>
-    <a href="/">Shop</a>
-    <a href="/glazes.html">Glazes</a>
-    <a href="/#about">About</a>
+    <a href="/" class="nav-logo">Shiro <span>Studio</span></a>
+    <ul class="nav-links">
+      <li><a href="/shop.html">Shop</a></li>
+      <li><a href="/glazes.html" class="active">Glazes</a></li>
+      <li><a href="/#story">About</a></li>
+      <li><a href="/#commission">Commission</a></li>
+    </ul>
+    <a href="/shop.html" class="nav-cta">Shop now</a>
   </nav>
-</header>
 
-<div class="hero">
-  <div>
-    <span class="hero-tag">🎨 Color options</span>
-    <h1>Choose your <span>glaze</span></h1>
-    <p class="hero-sub">Every piece can be made in any of these glazes! Browse the options below, then add a note at checkout with your glaze preference. Keep in mind glazes fire a little differently on each piece — that's part of the magic. ✨</p>
-    <a class="hero-cta" href="/">← Back to the Shop</a>
+  <div class="page-header">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <p class="page-eyebrow">Shiro Studio · Color options</p>
+    <h1 class="page-title">Choose your <em>glaze</em></h1>
+    <p class="page-desc">Every piece can be made in any of these glazes. Browse below, then add a note at checkout with your preference. Glazes fire a little differently on each piece — and that's part of what makes it yours.</p>
+    <a href="/shop.html" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M6 2L2 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to the shop
+    </a>
   </div>
-</div>
 
-<!-- Available Now -->
-<div class="section">
-  <h2 class="section-title">✅ Available Now</h2>
-  <div class="glaze-grid">
+  <div class="divider"></div>
 
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/ancient-jasper.jpg" alt="Ancient Jasper" /></div>
-      <div class="glaze-info"><p class="glaze-name">Ancient Jasper</p><p class="glaze-desc">Rich red and black, earthy and dramatic</p></div>
+  <div class="content">
+
+    <!-- Available Now -->
+    <div class="section-header">
+      <h2 class="section-title">Available <em>now</em></h2>
+      <span class="section-count">17 glazes</span>
     </div>
 
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/blue-fire.jpg" alt="Blue Flame" /></div>
-      <div class="glaze-info"><p class="glaze-name">Blue Flame</p><p class="glaze-desc">Palest icy blue with wispy flame-like details</p></div>
+    <div class="glaze-grid">
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/ancient-jasper.jpg" alt="Ancient Jasper"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Ancient Jasper</p>
+          <p class="glaze-desc">Rich red and black, earthy and dramatic</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/blue-fire.jpg" alt="Blue Flame"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Blue Flame</p>
+          <p class="glaze-desc">Palest icy blue with wispy flame-like details</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/dragons-eye.jpg" alt="Dragon's Eye"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Dragon's Eye</p>
+          <p class="glaze-desc">Deep navy with smoldering dark red splotches</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/emerald-isle.jpg" alt="Emerald Isle Crackle"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Emerald Isle Crackle</p>
+          <p class="glaze-desc">Deep forest green with subtle crackle texture</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/flambe.jpg" alt="Flambe"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Flambe</p>
+          <p class="glaze-desc">Blue and purple, semi-transparent with sparkle</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/galaxy-mist.jpg" alt="Galaxy Mist"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Galaxy Mist</p>
+          <p class="glaze-desc">Medium blue scattered with vivid red splotches</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/lemon-drop.jpg" alt="Lemon Drop"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Lemon Drop</p>
+          <p class="glaze-desc">Bright cheerful yellow, sunny and sweet</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch">
+          <div class="glaze-swatch-placeholder" style="background:#F2F0ED;">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" fill="none" stroke="#D4C8B8" stroke-width="1.5"/><circle cx="20" cy="20" r="8" fill="none" stroke="#D4C8B8" stroke-width="1"/></svg>
+          </div>
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Matte Clear</p>
+          <p class="glaze-desc">Clean and neutral — lets the clay body shine through</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/micro-cerulean.jpg" alt="Micro Cerulean"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Micro Cerulean</p>
+          <p class="glaze-desc">Soft, dreamy light blue — like a clear spring sky</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/opal-lustre.jpg" alt="Opal Lustre"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Opal Lustre</p>
+          <p class="glaze-desc">Blue and warm brown, iridescent depth</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/prisma-green.jpg" alt="Prisma Green"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Prisma Green</p>
+          <p class="glaze-desc">Teal base with shifting purple and blue details</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/raspberry-mist.jpg" alt="Raspberry Mist"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Raspberry Mist</p>
+          <p class="glaze-desc">Deep, rich pink — bold and beautiful</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/rose-quartz.jpg" alt="Rose Quartz"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Rose Quartz</p>
+          <p class="glaze-desc">Soft, rosy pink — gentle and romantic</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/sand-and-sea.jpg" alt="Sand & Sea"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Sand & Sea</p>
+          <p class="glaze-desc">Light blue fading into warm sand tones</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/saturated-gold.jpg" alt="Saturated Gold"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Saturated Gold</p>
+          <p class="glaze-desc">Warm, rich gold — luxurious and glowing</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/textured-burgundy.jpg" alt="Textured Burgundy"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">Textured Burgundy</p>
+          <p class="glaze-desc">Deep wine red with a tactile, matte surface</p>
+        </div>
+      </div>
+
+      <div class="glaze-card">
+        <div class="glaze-swatch"><img src="/glazes/true-opal.jpg" alt="True Opal"></div>
+        <div class="glaze-info">
+          <p class="glaze-name">True Opal</p>
+          <p class="glaze-desc">Clean, crisp white — classic and versatile</p>
+        </div>
+      </div>
+
     </div>
 
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/dragons-eye.jpg" alt="Dragon's Eye" /></div>
-      <div class="glaze-info"><p class="glaze-name">Dragon's Eye</p><p class="glaze-desc">Deep navy with smoldering dark red splotches</p></div>
+    <!-- Coming Soon -->
+    <div class="section-header">
+      <h2 class="section-title">Coming <em>soon</em></h2>
+      <span class="section-count">5 glazes</span>
     </div>
 
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/emerald-isle.jpg" alt="Emerald Isle Crackle" /></div>
-      <div class="glaze-info"><p class="glaze-name">Emerald Isle Crackle</p><p class="glaze-desc">Deep forest green with subtle crackle texture</p></div>
+    <div class="glaze-grid">
+
+      <div class="glaze-card coming-soon">
+        <div class="glaze-swatch">
+          <span class="soon-badge">Soon</span>
+          <img src="/glazes/plum-blossom-green.jpg" alt="Plum Blossom">
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Plum Blossom</p>
+          <p class="glaze-desc">Teal and green-brown, organic and earthy</p>
+        </div>
+      </div>
+
+      <div class="glaze-card coming-soon">
+        <div class="glaze-swatch">
+          <span class="soon-badge">Soon</span>
+          <div class="glaze-swatch-placeholder" style="background:#1B4332;">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4 Q8 8 6 16 Q8 26 16 28 Q24 26 26 16 Q24 8 16 4Z" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/></svg>
+          </div>
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Seaweed</p>
+          <p class="glaze-desc">Deep, moody forest green</p>
+        </div>
+      </div>
+
+      <div class="glaze-card coming-soon">
+        <div class="glaze-swatch">
+          <span class="soon-badge">Soon</span>
+          <img src="/glazes/smokey-merlot.jpg" alt="Smokey Merlot">
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Smokey Merlot</p>
+          <p class="glaze-desc">Deep, smoky purple</p>
+        </div>
+      </div>
+
+      <div class="glaze-card coming-soon">
+        <div class="glaze-swatch">
+          <span class="soon-badge">Soon</span>
+          <img src="/glazes/wasabi.jpg" alt="Wasabi">
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Wasabi</p>
+          <p class="glaze-desc">Light yellow-green, fresh and fun</p>
+        </div>
+      </div>
+
+      <div class="glaze-card coming-soon">
+        <div class="glaze-swatch">
+          <span class="soon-badge">Soon</span>
+          <div class="glaze-swatch-placeholder" style="background:linear-gradient(135deg,#E8DDD3,#C8B8A8,#B8D0C8,#D0C8B8);"></div>
+        </div>
+        <div class="glaze-info">
+          <p class="glaze-name">Laguna Luster Opaline</p>
+          <p class="glaze-desc">Iridescent overglaze with a pearlescent finish</p>
+        </div>
+      </div>
+
     </div>
 
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/flambe.jpg" alt="Flambe" /></div>
-      <div class="glaze-info"><p class="glaze-name">Flambe</p><p class="glaze-desc">Blue and purple, semi-transparent with sparkle</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/galaxy-mist.jpg" alt="Galaxy Mist" /></div>
-      <div class="glaze-info"><p class="glaze-name">Galaxy Mist</p><p class="glaze-desc">Medium blue scattered with vivid red splotches</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/lemon-drop.jpg" alt="Lemon Drop" /></div>
-      <div class="glaze-info"><p class="glaze-name">Lemon Drop</p><p class="glaze-desc">Bright cheerful yellow, sunny and sweet</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch" style="background:#f0f4f8; display:flex; align-items:center; justify-content:center; font-size:2rem;">🔮</div>
-      <div class="glaze-info"><p class="glaze-name">Matte Clear</p><p class="glaze-desc">Clean and neutral — lets the clay body shine through</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/micro-cerulean.jpg" alt="Micro Cerulean" /></div>
-      <div class="glaze-info"><p class="glaze-name">Micro Cerulean</p><p class="glaze-desc">Soft, dreamy light blue — like a clear spring sky</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/opal-lustre.jpg" alt="Opal Lustre" /></div>
-      <div class="glaze-info"><p class="glaze-name">Opal Lustre</p><p class="glaze-desc">Blue and warm brown, iridescent depth</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/prisma-green.jpg" alt="Prisma Green" /></div>
-      <div class="glaze-info"><p class="glaze-name">Prisma Green</p><p class="glaze-desc">Teal base with shifting purple and blue details</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/raspberry-mist.jpg" alt="Raspberry Mist" /></div>
-      <div class="glaze-info"><p class="glaze-name">Raspberry Mist</p><p class="glaze-desc">Deep, rich pink — bold and beautiful</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/rose-quartz.jpg" alt="Rose Quartz" /></div>
-      <div class="glaze-info"><p class="glaze-name">Rose Quartz</p><p class="glaze-desc">Soft, rosy pink — gentle and romantic</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/sand-and-sea.jpg" alt="Sand & Sea" /></div>
-      <div class="glaze-info"><p class="glaze-name">Sand & Sea</p><p class="glaze-desc">Light blue fading into warm sand tones</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/saturated-gold.jpg" alt="Saturated Gold" /></div>
-      <div class="glaze-info"><p class="glaze-name">Saturated Gold</p><p class="glaze-desc">Warm, rich gold — luxurious and glowing</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/textured-burgundy.jpg" alt="Textured Burgundy" /></div>
-      <div class="glaze-info"><p class="glaze-name">Textured Burgundy</p><p class="glaze-desc">Deep wine red with a tactile, matte surface</p></div>
-    </div>
-
-    <div class="glaze-card">
-      <div class="glaze-swatch"><img src="/glazes/true-opal.jpg" alt="True Opal" /></div>
-      <div class="glaze-info"><p class="glaze-name">True Opal</p><p class="glaze-desc">Clean, crisp white — classic and versatile</p></div>
+    <!-- How to request -->
+    <div class="note-card">
+      <div>
+        <p class="note-eyebrow">Requesting a glaze</p>
+        <h3 class="note-title">Not sure which to pick?<br><em>I'm happy to help.</em></h3>
+        <p class="note-body">When you add something to your cart, you'll see a personalization box before checkout — just type in your glaze preference there. Mix and match is welcome. If you're unsure, <a href="mailto:kira@shirostudio.com">send me an email</a> and I'll help you find the right fit. Keep in mind glazes fire a little differently on every piece, which is part of what makes each one unique.</p>
+      </div>
+      <a href="/shop.html" class="note-action">
+        Shop the collection
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
     </div>
 
   </div>
-</div>
 
-<!-- Coming Soon -->
-<div class="section">
-  <h2 class="section-title">🔜 Coming Soon</h2>
-  <div class="glaze-grid">
+  <footer>
+    <div class="footer-brand">Shiro <span>Studio</span></div>
+    <p class="footer-copy">© 2026 Shiro Studio · Kira Shinn · All rights reserved</p>
+  </footer>
 
-    <div class="glaze-card coming-soon">
-      <div class="glaze-swatch">
-        <span class="glaze-soon-badge">Soon</span>
-        <img src="/glazes/plum-blossom-green.jpg" alt="Plum Blossom Green" />
-      </div>
-      <div class="glaze-info"><p class="glaze-name">Plum Blossom</p><p class="glaze-desc">Teal and green-brown, organic and earthy</p></div>
-    </div>
-
-    <div class="glaze-card coming-soon">
-      <div class="glaze-swatch" style="background:#1B4332; display:flex; align-items:center; justify-content:center; font-size:2rem;">
-        <span class="glaze-soon-badge">Soon</span>🌿
-      </div>
-      <div class="glaze-info"><p class="glaze-name">Seaweed</p><p class="glaze-desc">Deep, moody forest green</p></div>
-    </div>
-
-    <div class="glaze-card coming-soon">
-      <div class="glaze-swatch">
-        <span class="glaze-soon-badge">Soon</span>
-        <img src="/glazes/smokey-merlot.jpg" alt="Smokey Merlot" />
-      </div>
-      <div class="glaze-info"><p class="glaze-name">Smokey Merlot</p><p class="glaze-desc">Deep, smoky purple</p></div>
-    </div>
-
-    <div class="glaze-card coming-soon">
-      <div class="glaze-swatch">
-        <span class="glaze-soon-badge">Soon</span>
-        <img src="/glazes/wasabi.jpg" alt="Wasabi" />
-      </div>
-      <div class="glaze-info"><p class="glaze-name">Wasabi</p><p class="glaze-desc">Light yellow-green, fresh and fun</p></div>
-    </div>
-
-    <div class="glaze-card coming-soon">
-      <div class="glaze-swatch" style="background: linear-gradient(135deg, #E8DDD3 0%, #C8B8A8 30%, #B8D0C8 60%, #D0C8B8 100%); display:flex; align-items:center; justify-content:center; font-size:2rem;">
-        <span class="glaze-soon-badge">Soon</span>🌙
-      </div>
-      <div class="glaze-info"><p class="glaze-name">Overglaze — Laguna Luster Opaline</p><p class="glaze-desc">Iridescent overglaze with a pearlescent finish</p></div>
-    </div>
-
-  </div>
-</div>
-
-<div class="note-box">
-  <h3>How to request a glaze 💕</h3>
-  <p>When you add something to your cart, you'll see a <strong>personalization box</strong> before checkout! Just type in the glaze name (or names — mix and match is totally fine to ask about) and any other requests you have. I'll reach out if I have questions. Not sure which to pick? Feel free to <a href="/cdn-cgi/l/email-protection#b7dcdec5d6daded4dfd2dbd2c4dfded9d9f7d0dad6dedb99d4d8da">send me an email</a> and I can help!</p>
-</div>
-
-<footer>
-  <p>© 2025 Kira's Ceramics · <a href="/">Back to Shop</a> · Questions? <a href="/cdn-cgi/l/email-protection#7
+</body>
+</html>
